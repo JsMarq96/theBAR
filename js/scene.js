@@ -1,7 +1,5 @@
 var scene = null;
 var renderer = null;
-var camera = null;
-var character = null;
 
 var animations = {};
 var animation = null;
@@ -99,12 +97,6 @@ var CurrentScene = {
         //create a scene
         this.scene = new RD.Scene();
     
-        //create camera
-        this.camera = new RD.Camera();
-        this.camera.perspective( 60, gl.canvas.width / gl.canvas.height, 0.1, 1000 );
-        this.camera.lookAt( [0,40,100], [0,20,0],[0,1,0] );
-        this.camera.destination_pos.destination_pos = [0,0,0];
-    
         this.walkarea = new WalkArea();
         this.walkarea.addRect([-50,0,-30],80,50);
         this.walkarea.addRect([-90,0,-10],80,20);
@@ -130,6 +122,7 @@ var CurrentScene = {
         panel.position = [0,50, 0];
         this.scene.root.addChild(panel);
 
+        this.camera_controller = CameraController.init([0, 40, 100], this.character.position);
 
         // main loop ***********************
     
@@ -139,20 +132,14 @@ var CurrentScene = {
             gl.canvas.height = document.body.offsetHeight;
             gl.viewport(0,0,gl.canvas.width,gl.canvas.height);
     
-            
-            //camera.perspective( 60, gl.canvas.width / gl.canvas.height, 0.1, 1000 );
-            //camera.lookAt( camera.position, girlpos, [0,1,0] );
+        
     
             //clear
             CurrentScene.renderer.clear([0.1,0.1,0.1,1]);
             //render scene
-            CurrentScene.renderer.render(CurrentScene.scene, CurrentScene.camera, null, 0b11 );
+            CurrentScene.renderer.render(CurrentScene.scene, CurrentScene.camera_controller.camera, null, 0b11 );
     
             var vertices = CurrentScene.walkarea.getVertices();
-            //CurrentScene.renderer.renderPoints( vertices, null, camera, null,null,null,gl.LINES );
-    
-            //gizmo.setTargets([monkey]);
-            //renderer.render( scene, camera, [gizmo] ); //render gizmo on top
         }   
         
         context.onupdate = function(dt) {
@@ -176,9 +163,11 @@ var CurrentScene = {
             if (gl.keys["RIGHT"] || gl.keys["D"]) {
                 move_local[0] = 1;
             }
+
+            var has_moved = Math.sqrt(move_local[0]*move_local[0] + move_local[1]*move_local[1] + move_local[2]*move_local[2]) > 0.0;
             
             var prev_char_pos = [... CurrentScene.character.position];
-            if (Math.sqrt(move_local[0]*move_local[0] + move_local[1]*move_local[1] + move_local[2]*move_local[2]) > 0.0) {
+            if (has_moved) {
                 var rotation = [... CurrentScene.character.rotation];
 
                 var facing_point = [];
@@ -192,9 +181,6 @@ var CurrentScene = {
                 CurrentScene.character.rotate(CurrentScene.character.rotation_angle, [0,1,0], true);
                 CurrentScene.character.translate(move_local);
 
-                vec3.add(CurrentScene.camera.destination_pos, move_local, CurrentScene.position);
-
-
                 //CurrentScene.character.rotation = [... rotation];
                 //console.log(angle, CurrentScene.character.position);
             } else {
@@ -203,16 +189,11 @@ var CurrentScene = {
             
             CurrentScene.character.position = CurrentScene.walkarea.adjustPosition( CurrentScene.character.position );
 
-            var char_delta_movement = [];
-            vec3.sub(char_delta_movement, CurrentScene.character.position, prev_char_pos);
-
-            var perfect_cam_pos = [];
-            vec3.add(perfect_cam_pos, CurrentScene.camera.position, char_delta_movement);
-
-            var new_cam_pos = [];
-            vec3.lerp(new_pos_cam, 0.25, perfect_cam_pos, CurrentScene.camera.position);
-
-            CurrentScene.camera.lookAt( [0,40,100], [0,20,0],[0,1,0] );
+            if (has_moved) {
+                CurrentScene.camera_controller.update_character(CurrentScene.character.position);
+            }
+            
+            CurrentScene.camera_controller.update_camera();
         }
     
         //capture mouse events
