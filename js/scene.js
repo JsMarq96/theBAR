@@ -21,8 +21,15 @@ function draw_rounded_square(ctx, x,y, width, height, rad, color) {
     ctx.fillRect(x+(rad/2), y+(rad/2), width-rad, height-rad);
 }
 
+function get_rotation_angle(pos, pos_towards) {
+    var position = [];
+    vec3.sub(position, pos_towards, pos);
+
+    return Math.atan2(position[2], position[0]);
+}
+
 var CurrentScene = {
-    draw_text: function(txt, user) {
+    get_text_bubble_texture: function(txt, user) {
         var text_lines = txt.match(/.{1,19}/g);
         var line_size = Math.min(txt.length, 15);
 
@@ -95,7 +102,8 @@ var CurrentScene = {
         //create camera
         this.camera = new RD.Camera();
         this.camera.perspective( 60, gl.canvas.width / gl.canvas.height, 0.1, 1000 );
-        this.camera.lookAt( [0,40,100],[0,20,0],[0,1,0] );
+        this.camera.lookAt( [0,40,100], [0,20,0],[0,1,0] );
+        this.camera.destination_pos.destination_pos = [0,0,0];
     
         this.walkarea = new WalkArea();
         this.walkarea.addRect([-50,0,-30],80,50);
@@ -110,13 +118,14 @@ var CurrentScene = {
         this.character = new RD.SceneNode({scaling:5.0,position:[0,-.01,0]});
         this.character.loadGLTF("data/box.glb");
         this.character.inital_rotation = [... this.character.rotation];
+        this.character.rotation_angle = 1.5707963267948966;
         this.scene.root.addChild( this.character );
 
-        var text = CurrentScene.draw_text("Hellooo que tal estas tron lmao", "Juan");
+        var text = CurrentScene.get_text_bubble_texture("Hellooo que tal estas tron lmao", "Juan");
         gl.textures[":canvas"] = text;
         console.log(text);
 
-        var panel = new RD.SceneNode({mesh:"plane",scale:[text.width/4.0,text.height/4.0,1],flags:{two_sided:true}});
+        var panel = new RD.SceneNode({mesh:"plane",scale:[text.width/5.0,text.height/5.0,1],flags:{two_sided:true}});
         panel.texture = ":canvas"; //assign canvas texture to node
         panel.position = [0,50, 0];
         this.scene.root.addChild(panel);
@@ -156,45 +165,54 @@ var CurrentScene = {
             //control with keys
             var move_local = [0,0,0];
             if (gl.keys["UP"] || gl.keys["W"]) {
-                //CurrentScene.character.moveLocal([0,0,-1]);
                 move_local[2] = -1;
             }
             if (gl.keys["DOWN"] || gl.keys["S"]) {
-                //CurrentScene.character.moveLocal([0,0,1]);
                 move_local[2] = 1;
             }
             if (gl.keys["LEFT"] || gl.keys["A"]) {
-                //CurrentScene.character.moveLocal([-1,0,0]);
                 move_local[0] = -1;
             }
             if (gl.keys["RIGHT"] || gl.keys["D"]) {
-                //CurrentScene.character.moveLocal([1,0,0]);
                 move_local[0] = 1;
             }
             
+            var prev_char_pos = [... CurrentScene.character.position];
             if (Math.sqrt(move_local[0]*move_local[0] + move_local[1]*move_local[1] + move_local[2]*move_local[2]) > 0.0) {
-                //var angle = 90.0 * dt * Math.sin(t *0.00020) * DEG2RAD;
-                //var angle = 90.mod(x,1.0) - 0.5;
-                //CurrentScene.character.rotate(angle, [0,0,-1]);
                 var rotation = [... CurrentScene.character.rotation];
 
+                var facing_point = [];
+                vec3.add(facing_point, CurrentScene.character.position, move_local);
+
+                console.log();
                 //CurrentScene.character.rotation = [... CurrentScene.character.inital_rotation];
 
-                CurrentScene.character.moveLocal(move_local);
+                CurrentScene.character.rotation_angle = Math.lerp(CurrentScene.character.rotation_angle, get_rotation_angle(CurrentScene.character.position, facing_point), 0.25);
+
+                CurrentScene.character.rotate(CurrentScene.character.rotation_angle, [0,1,0], true);
+                CurrentScene.character.translate(move_local);
+
+                vec3.add(CurrentScene.camera.destination_pos, move_local, CurrentScene.position);
+
 
                 //CurrentScene.character.rotation = [... rotation];
                 //console.log(angle, CurrentScene.character.position);
             } else {
-                CurrentScene.character.rotation = [... CurrentScene.character.inital_rotation];
+                //CurrentScene.character.rotation = [... CurrentScene.character.inital_rotation];
             }
             
-
-            //var pos = girl_pivot.position;
             CurrentScene.character.position = CurrentScene.walkarea.adjustPosition( CurrentScene.character.position );
-            //girl_pivot.position = nearest_pos;
-    
-            //move bones in the skeleton based on animation
-            //anim.assignTime( t * 0.001 * time_factor );
+
+            var char_delta_movement = [];
+            vec3.sub(char_delta_movement, CurrentScene.character.position, prev_char_pos);
+
+            var perfect_cam_pos = [];
+            vec3.add(perfect_cam_pos, CurrentScene.camera.position, char_delta_movement);
+
+            var new_cam_pos = [];
+            vec3.lerp(new_pos_cam, 0.25, perfect_cam_pos, CurrentScene.camera.position);
+
+            CurrentScene.camera.lookAt( [0,40,100], [0,20,0],[0,1,0] );
         }
     
         //capture mouse events
