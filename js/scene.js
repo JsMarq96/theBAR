@@ -164,6 +164,10 @@ var CurrentScene = {
                 move_local[0] = 1;
             }
 
+            if (gl.keys["E"]) {
+                CurrentScene.camera_controller.look_at_point([0,0,0], [20, 20, 20]);
+            }
+
             var has_moved = Math.sqrt(move_local[0]*move_local[0] + move_local[1]*move_local[1] + move_local[2]*move_local[2]) > 0.0;
             
             var prev_char_pos = [... CurrentScene.character.position];
