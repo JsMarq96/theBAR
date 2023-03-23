@@ -8,7 +8,8 @@ var walkarea = null;
 
 var socket = null;
 
-
+const FREE_ROAM = 0;
+const SEATED = 1;
 
 
 function get_rotation_angle(pos, pos_towards) {
@@ -20,6 +21,24 @@ function get_rotation_angle(pos, pos_towards) {
 
 var CurrentScene = {
     init: function() {
+        this.free_roaming_users = [];
+        this.seated_users = [];
+
+        this.users_by_id = {};
+
+        // Seated positions
+        this.seated_positions = {
+            'table_1': { 0 : [], 1 : [], 2: [], 3 : [], 4 : [], 5 : [], 6 : [] },
+            'table_2': { 0 : [], 1 : [], 2: [], 3 : [], 4 : [], 5 : [], 6 : [] },
+            'table_3': { 0 : [], 1 : [], 2: [], 3 : [], 4 : [], 5 : [], 6 : [] },
+        };
+
+        this.seated_orientations = {
+            'table_1': { 0 : 0.0, 1 : 0.0, 2: 0.0, 3 : 0.0, 4 : 0.0, 5 : 0.0, 6 : 0.0 },
+            'table_2': { 0 : 0.0, 1 : 0.0, 2: 0.0, 3 : 0.0, 4 : 0.0, 5 : 0.0, 6 : 0.0 },
+            'table_3': { 0 : 0.0, 1 : 0.0, 2: 0.0, 3 : 0.0, 4 : 0.0, 5 : 0.0, 6 : 0.0 },
+        };
+
         //create the rendering context
         var context = GL.create({width: window.innerWidth, height:window.innerHeight});
     
@@ -139,10 +158,49 @@ var CurrentScene = {
         context.animate();
     
     },
-    add_free_roaming_user: function(user_id, style, position, direction) {},
-    add_seated_user: function(user_id, style, table_id, seat_id) {},
-    start_moving_user: function(user_id, start_pos, direction) {},
-    end_moving_user: function(user_id, end_pos) {},
-    user_join_table: function(user_id, table_id, seat_id) {},
-    user_exit_table: function(user_id, position) {}
+
+    // WEB BASED EVENTS
+    add_free_roaming_user: function(user_id, style, position, direction) {
+        var new_character = new RD.SceneNode({scaling:5.0,position:[0,-.01,0]});
+        new_character.loadGLTF("data/box.glb");
+        new_character.inital_rotation = [... new_character.rotation];
+        new_character.rotation_angle = 1.5707963267948966;
+        new_character.position = [... position];
+        new_character.direction = [... direction];
+        new_character.mode = FREE_ROAM;
+        this.scene.root.addChild( new_character );
+
+        users_by_id[user_id] = new_character;
+    },
+    add_seated_user: function(user_id, style, table_id, seat_id) {
+        var new_character = new RD.SceneNode({scaling:5.0,position:[0,-.01,0]});
+        new_character.loadGLTF("data/box.glb");
+        new_character.inital_rotation = [... new_character.rotation];
+        new_character.rotation_angle = 1.5707963267948966;
+        new_character.position = [... this.seated_positions[table_id][seat_id]];
+        new_character.direction = [0,0,0];
+        new_character.mode = SEATED;
+        new_character.rotation_angle = this.seated_orientations[table_id][seat_id];
+        this.scene.root.addChild( new_character );
+
+        users_by_id[user_id] = new_character;
+    },
+    start_moving_user: function(user_id, start_pos, direction) {
+        users_by_id[user_id].direction = [... direction];
+        users_by_id[user_id].position = [... start_pos];
+    },
+    end_moving_user: function(user_id, end_pos) {
+        users_by_id[user_id].direction = [0,0,0];
+        users_by_id[user_id].position = [... end_pos];
+    },
+    user_join_table: function(user_id, table_id, seat_id) {
+        users_by_id[user_id].position = [... this.seated_positions[table_id][seat_id]];
+        users_by_id[user_id].rotation_angle = this.seated_orientations[table_id][seat_id];
+        users_by_id[user_id].mode = SEATED;
+    },
+    user_exit_table: function(user_id, position) {
+        users_by_id[user_id].position = [... position];
+        users_by_id[user_id].rotation_angle = 1.5707963267948966;
+        users_by_id[user_id].mode = FREE_ROAM;
+    }
 };
