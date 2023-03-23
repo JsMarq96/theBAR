@@ -26,6 +26,8 @@ var CurrentScene = {
 
         this.users_by_id = {};
 
+        this.current_user_id = 1;
+
         // Seated positions
         this.seated_positions = {
             'table_1': { 0 : [], 1 : [], 2: [], 3 : [], 4 : [], 5 : [], 6 : [] },
@@ -97,7 +99,30 @@ var CurrentScene = {
     
             var t = getTime();
             var time_factor = 1;
+
+            // Update the positions of all characters
+            for(const user_id in CurrentScene.users_by_id) {
+                if (CurrentScene.users_by_id[user_id].mode == SEATED) {
+                    continue;
+                }
+                var user_direction = CurrentScene.users_by_id[user_id].direction;
+
+                if (Math.sqrt(user_direction[0]*user_direction[0] + user_direction[1]*user_direction[1] + user_direction[2]*user_direction[2]) <= 0.0) {
+                    continue;
+                }
+
+                var facing_point = [];
+                vec3.add(facing_point, CurrentScene.users_by_id[user_id].position, user_direction);
+
+                CurrentScene.users_by_id[user_id].rotation_angle = Math.lerp(CurrentScene.users_by_id[user_id], get_rotation_angle(CurrentScene.character.position, facing_point), 0.25);
+
+                CurrentScene.users_by_id[user_id].rotate(CurrentScene.users_by_id[user_id].rotation_angle, [0,1,0], true);
+                CurrentScene.users_by_id[user_id].translate(CurrentScene.users_by_id[user_id]);
+                
+                CurrentScene.users_by_id[user_id].position = CurrentScene.walkarea.adjustPosition( CurrentScene.users_by_id[user_id].position );
+            }
     
+            // CONTROL OF THE CURRENT USER
             //control with keys
             var move_local = [0,0,0];
             if (gl.keys["UP"] || gl.keys["W"]) {
@@ -115,36 +140,32 @@ var CurrentScene = {
 
             if (gl.keys["E"]) {
                 //CurrentScene.camera_controller.look_at_point([0,0,0], [20, 20, 20]);
-                CurrentScene.dialoge_controller.add_message("Juan", "Hwoeooo que tal jejeje", [0,5, 0]);
+                //CurrentScene.dialoge_controller.add_message("Juan", "Hwoeooo que tal jejeje", [0,5, 0]);
             }
 
-            var has_moved = Math.sqrt(move_local[0]*move_local[0] + move_local[1]*move_local[1] + move_local[2]*move_local[2]) > 0.0;
-            
-            var prev_char_pos = [... CurrentScene.character.position];
-            if (has_moved) {
-                var rotation = [... CurrentScene.character.rotation];
+            var is_character_movement_equal = true;
+            var is_moving = Math.sqrt(move_local[0]*move_local[0] + move_local[1]*move_local[1] + move_local[2]*move_local[2]) > 0.0;
 
-                var facing_point = [];
-                vec3.add(facing_point, CurrentScene.character.position, move_local);
-
-                console.log();
-                //CurrentScene.character.rotation = [... CurrentScene.character.inital_rotation];
-
-                CurrentScene.character.rotation_angle = Math.lerp(CurrentScene.character.rotation_angle, get_rotation_angle(CurrentScene.character.position, facing_point), 0.25);
-
-                CurrentScene.character.rotate(CurrentScene.character.rotation_angle, [0,1,0], true);
-                CurrentScene.character.translate(move_local);
-
-                //CurrentScene.character.rotation = [... rotation];
-                //console.log(angle, CurrentScene.character.position);
-            } else {
-                //CurrentScene.character.rotation = [... CurrentScene.character.inital_rotation];
+            for(var i = 0; i < 3; i++) {
+                is_character_movement_equal = CurrentScene.users_by_id[self.current_user_id].direction[i] == move_local[i];
+                if (!is_character_movement_equal) {
+                    break;
+                }
             }
-            
-            CurrentScene.character.position = CurrentScene.walkarea.adjustPosition( CurrentScene.character.position );
 
-            if (has_moved) {
-                CurrentScene.camera_controller.update_character(CurrentScene.character.position);
+            if (!is_character_movement_equal) {
+                if (is_moving) {
+                    start_moving_user(CurrentScene.users_by_id[self.current_user_id].position, CurrentScene.users_by_id[self.current_user_id].direction);
+                } else {
+                    end_moving_user(CurrentScene.users_by_id[self.current_user_id].position);
+                }
+
+            }
+
+            CurrentScene.users_by_id[self.current_user_id].direction = [... move_local]; 
+
+            if (is_moving) {
+                CurrentScene.camera_controller.update_character(CurrentScene.users_by_id[self.current_user_id].position);
             }
             
             CurrentScene.camera_controller.update_camera();

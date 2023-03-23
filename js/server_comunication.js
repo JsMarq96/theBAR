@@ -14,6 +14,14 @@ function send_register() {
   console.log("Send register");
 }
 
+function send_start_moving_character(position, direction) {
+  socket.send(JSON.stringify({'type':'start_moving','start_pos': position, 'direction':direction}));
+}
+
+function send_stop_moving_character(position) {
+  socket.send(JSON.stringify({'type':'stop_moving','end_pos': position}));
+}
+
 function InitServerComs() {
   // Config serverside socket
   socket = new WebSocket('ws://localhost:9035/messages');
