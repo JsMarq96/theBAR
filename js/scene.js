@@ -26,7 +26,9 @@ var CurrentScene = {
 
         this.users_by_id = {};
 
-        this.current_user_id = 1;
+        this.current_user_id = 3;
+
+        ServerCommunication.init();
 
         // Seated positions
         this.seated_positions = {
@@ -116,8 +118,8 @@ var CurrentScene = {
 
                 CurrentScene.users_by_id[user_id].rotation_angle = Math.lerp(CurrentScene.users_by_id[user_id], get_rotation_angle(CurrentScene.character.position, facing_point), 0.25);
 
-                CurrentScene.users_by_id[user_id].rotate(CurrentScene.users_by_id[user_id].rotation_angle, [0,1,0], true);
-                CurrentScene.users_by_id[user_id].translate(CurrentScene.users_by_id[user_id]);
+                //CurrentScene.users_by_id[user_id].rotate(CurrentScene.users_by_id[user_id].rotation_angle, [0,1,0], true);
+                CurrentScene.users_by_id[user_id].translate(CurrentScene.users_by_id[user_id].direction);
                 
                 CurrentScene.users_by_id[user_id].position = CurrentScene.walkarea.adjustPosition( CurrentScene.users_by_id[user_id].position );
             }
@@ -146,27 +148,30 @@ var CurrentScene = {
             var is_character_movement_equal = true;
             var is_moving = Math.sqrt(move_local[0]*move_local[0] + move_local[1]*move_local[1] + move_local[2]*move_local[2]) > 0.0;
 
-            for(var i = 0; i < 3; i++) {
-                is_character_movement_equal = CurrentScene.users_by_id[self.current_user_id].direction[i] == move_local[i];
+            if (Object.keys(CurrentScene.users_by_id).length > 0) {
+                for(var i = 0; i < 3; i++) {
+                    is_character_movement_equal = CurrentScene.users_by_id[CurrentScene.current_user_id].direction[i] == move_local[i];
+                    if (!is_character_movement_equal) {
+                        break;
+                    }
+                }
+    
                 if (!is_character_movement_equal) {
-                    break;
+                    if (is_moving) {
+                        ServerCommunication.send_start_moving_character(CurrentScene.users_by_id[CurrentScene.current_user_id].position, CurrentScene.users_by_id[CurrentScene.current_user_id].direction);
+                    } else {
+                        ServerCommunication.send_stop_moving_characte(CurrentScene.users_by_id[CurrentScene.current_user_id].position);
+                    }
+    
                 }
-            }
-
-            if (!is_character_movement_equal) {
+    
+                CurrentScene.users_by_id[CurrentScene.current_user_id].direction = [... move_local]; 
+    
                 if (is_moving) {
-                    start_moving_user(CurrentScene.users_by_id[self.current_user_id].position, CurrentScene.users_by_id[self.current_user_id].direction);
-                } else {
-                    end_moving_user(CurrentScene.users_by_id[self.current_user_id].position);
+                    CurrentScene.camera_controller.update_character(CurrentScene.users_by_id[CurrentScene.current_user_id].position);
                 }
-
             }
 
-            CurrentScene.users_by_id[self.current_user_id].direction = [... move_local]; 
-
-            if (is_moving) {
-                CurrentScene.camera_controller.update_character(CurrentScene.users_by_id[self.current_user_id].position);
-            }
             
             CurrentScene.camera_controller.update_camera();
         }
@@ -182,6 +187,7 @@ var CurrentScene = {
 
     // WEB BASED EVENTS
     add_free_roaming_user: function(user_id, style, position, direction) {
+        console.log(user_id);
         var new_character = new RD.SceneNode({scaling:5.0,position:[0,-.01,0]});
         new_character.loadGLTF("data/box.glb");
         new_character.inital_rotation = [... new_character.rotation];
@@ -191,7 +197,7 @@ var CurrentScene = {
         new_character.mode = FREE_ROAM;
         this.scene.root.addChild( new_character );
 
-        users_by_id[user_id] = new_character;
+        CurrentScene.users_by_id[user_id] = new_character;
     },
     add_seated_user: function(user_id, style, table_id, seat_id) {
         var new_character = new RD.SceneNode({scaling:5.0,position:[0,-.01,0]});
@@ -204,24 +210,24 @@ var CurrentScene = {
         new_character.rotation_angle = this.seated_orientations[table_id][seat_id];
         this.scene.root.addChild( new_character );
 
-        users_by_id[user_id] = new_character;
+        CurrentScene.users_by_id[user_id] = new_character;
     },
     start_moving_user: function(user_id, start_pos, direction) {
-        users_by_id[user_id].direction = [... direction];
-        users_by_id[user_id].position = [... start_pos];
+        CurrentScene.users_by_id[user_id].direction = [... direction];
+        CurrentScene.users_by_id[user_id].position = [... start_pos];
     },
     end_moving_user: function(user_id, end_pos) {
-        users_by_id[user_id].direction = [0,0,0];
-        users_by_id[user_id].position = [... end_pos];
+        CurrentScene.users_by_id[user_id].direction = [0,0,0];
+        CurrentScene.users_by_id[user_id].position = [... end_pos];
     },
     user_join_table: function(user_id, table_id, seat_id) {
-        users_by_id[user_id].position = [... this.seated_positions[table_id][seat_id]];
-        users_by_id[user_id].rotation_angle = this.seated_orientations[table_id][seat_id];
-        users_by_id[user_id].mode = SEATED;
+        CurrentScene.users_by_id[user_id].position = [... this.seated_positions[table_id][seat_id]];
+        CurrentScene.users_by_id[user_id].rotation_angle = this.seated_orientations[table_id][seat_id];
+        CurrentScene.users_by_id[user_id].mode = SEATED;
     },
     user_exit_table: function(user_id, position) {
-        users_by_id[user_id].position = [... position];
-        users_by_id[user_id].rotation_angle = 1.5707963267948966;
-        users_by_id[user_id].mode = FREE_ROAM;
+        CurrentScene.users_by_id[user_id].position = [... position];
+        CurrentScene.users_by_id[user_id].rotation_angle = 1.5707963267948966;
+        CurrentScene.users_by_id[user_id].mode = FREE_ROAM;
     }
 };
