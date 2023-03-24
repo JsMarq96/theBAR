@@ -30,7 +30,7 @@ var ServerCommunication = {
       CurrentScene.socket = socket;
     
       //init_menu();
-      ServerCommunication.send_log_in('test', 'test');
+      //ServerCommunication.send_log_in('test', 'test');
     });
   
     socket.addEventListener('message', (event) => {
@@ -39,8 +39,9 @@ var ServerCommunication = {
     
       if (msg_obj.type.localeCompare("logged_in") == 0) {
         // TODO
-        CurrentScene.user_id = msg_obj.id;
+        CurrentScene.current_user_id = msg_obj.id;
         
+        document.getElementById("login_menu").remove();
   
         // Add in table users
         for(const table in msg_obj.room_state.tables) {
@@ -57,6 +58,15 @@ var ServerCommunication = {
           CurrentScene.add_free_roaming_user(parseInt(user.id), user.style, user.position, user.direction);
         }
   
+      } else if (msg_obj.type.localeCompare("start_moving") == 0) {
+        // TODO
+        CurrentScene.start_moving_user(msg_obj.user_id, msg_obj.start_pos, msg_obj.direction);
+      } else if (msg_obj.type.localeCompare("stop_moving") == 0) {
+        // TODO
+        CurrentScene.end_moving_user(msg_obj.user_id, msg_obj.end_pos);
+      } else if (msg_obj.type.localeCompare("new_character") == 0) {
+        // TODO
+        CurrentScene.add_free_roaming_user(msg_obj.user.id, msg_obj.user.style, msg_obj.user.position, [0,0,0]);
       } else if (msg_obj.type.localeCompare("user_disconnect") == 0) {
         // TODO
       } else if (msg_obj.type.localeCompare("login_error") == 0) {

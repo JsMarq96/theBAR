@@ -76,6 +76,8 @@ var CurrentScene = {
         
         this.camera_controller = CameraController.init([0, 40, 100], this.character.position);
         this.dialoge_controller = DialogeController.init(this.scene);
+    
+        MenusController.show_login_menu();
 
         // main loop ***********************
     
@@ -158,14 +160,14 @@ var CurrentScene = {
     
                 if (!is_character_movement_equal) {
                     if (is_moving) {
-                        ServerCommunication.send_start_moving_character(CurrentScene.users_by_id[CurrentScene.current_user_id].position, CurrentScene.users_by_id[CurrentScene.current_user_id].direction);
+                        ServerCommunication.send_start_moving_character(CurrentScene.users_by_id[CurrentScene.current_user_id].position, move_local);
                     } else {
                         ServerCommunication.send_stop_moving_characte(CurrentScene.users_by_id[CurrentScene.current_user_id].position);
                     }
     
                 }
     
-                CurrentScene.users_by_id[CurrentScene.current_user_id].direction = [... move_local]; 
+                //CurrentScene.users_by_id[CurrentScene.current_user_id].direction = [... move_local]; 
     
                 if (is_moving) {
                     CurrentScene.camera_controller.update_character(CurrentScene.users_by_id[CurrentScene.current_user_id].position);
@@ -218,6 +220,7 @@ var CurrentScene = {
     },
     end_moving_user: function(user_id, end_pos) {
         CurrentScene.users_by_id[user_id].direction = [0,0,0];
+        console.log(CurrentScene.users_by_id[user_id], user_id);
         CurrentScene.users_by_id[user_id].position = [... end_pos];
     },
     user_join_table: function(user_id, table_id, seat_id) {
