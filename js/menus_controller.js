@@ -8,8 +8,6 @@ var MenusController = {
         login_container.style.position = 'fixed';
         login_container.style.left = '2px';
         login_container.style.top = '2px';
-        login_container.style.width = '100px';
-        login_container.style.height = '100%';
         login_container.style.backgroundColor = "white";
 
         var name_input = document.createElement('input');
@@ -17,19 +15,18 @@ var MenusController = {
         name_input.style.position = 'fixed';
         name_input.style.left = '5px';
         name_input.style.top = '5px';
-        login_container.style.width = '100%';
 
         var passw_input = document.createElement('input');
         passw_input.type = 'text';
         passw_input.style.position = 'fixed';
         passw_input.style.left = '5px';
-        passw_input.style.top = '25px';
-        login_container.style.width = '100%';
+        passw_input.style.top = '35px';
 
         var button = document.createElement('button');
+        button.innerHTML = "Login"
         button.style.position = 'fixed';
         button.style.left = '5px';
-        button.style.top = '35px';
+        button.style.top = '65px';
         button.onclick = function(e) {
             ServerCommunication.send_log_in(name_input.value, passw_input.value);
         };
@@ -39,5 +36,35 @@ var MenusController = {
         login_container.appendChild(button);
 
         document.body.appendChild(login_container);
+    },
+
+    show_send_message_menu: function() {
+        var message_box = document.createElement('div');
+        message_box.id = "message_box";
+        message_box.style.position = 'fixed';
+        message_box.style.left = '50px';
+        message_box.style.bottom = '30px';
+
+        var message_input = document.createElement('input');
+        message_input.type = 'text';
+        message_input.id = "message_input";
+        message_input.style.position = 'fixed';
+        message_input.style.left = '50px';
+        message_input.style.bottom = '30px';
+
+        message_input.addEventListener("focusout", (event) => {
+            message_box.remove();
+        });
+
+        message_input.addEventListener('click', function(e){   
+            if (!message_input.contains(e.target)){
+                message_box.remove();
+            }
+          });
+
+
+        message_box.append(message_input);
+        document.body.append(message_box);
+        message_input.focus();
     }
 };

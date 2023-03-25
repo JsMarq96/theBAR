@@ -30,6 +30,8 @@ var CurrentScene = {
 
         ServerCommunication.init();
 
+        MenusController.show_send_message_menu();
+
         // Seated positions
         this.seated_positions = {
             'table_1': { 0 : [], 1 : [], 2: [], 3 : [], 4 : [], 5 : [], 6 : [] },

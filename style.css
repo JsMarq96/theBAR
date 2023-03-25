@@ -1,0 +1,13 @@
+#login_menu {
+    width: 500px;
+    height: 200px;
+    background-color: white;
+}
+
+input {
+    width: 450px;
+}
+
+#message_input {
+    width: 600px;
+}
