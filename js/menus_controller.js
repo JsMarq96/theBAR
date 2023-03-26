@@ -39,6 +39,7 @@ var MenusController = {
     },
 
     show_send_message_menu: function() {
+        CurrentScene.message_box_on = true;
         var message_box = document.createElement('div');
         message_box.id = "message_box";
         message_box.style.position = 'fixed';
@@ -60,7 +61,16 @@ var MenusController = {
             if (!message_input.contains(e.target)){
                 message_box.remove();
             }
-          });
+        });
+
+        message_input.addEventListener("keydown", function(e) {
+            console.log(e);
+            if (e.code === "Escape") {
+                message_box.remove();
+            } else if (e.code === "Enter") {
+                // Send message
+            }
+        });
 
 
         message_box.append(message_input);

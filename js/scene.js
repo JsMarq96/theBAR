@@ -66,7 +66,7 @@ var CurrentScene = {
     
         //load a GLTF for the room
         var room = new RD.SceneNode({scaling:40,position:[0,-.01,0]});
-        room.loadGLTF("data/room.gltf");
+        room.loadGLTF("data/room4.glb");
         this.scene.root.addChild( room );
     
         this.character = new RD.SceneNode({scaling:5.0,position:[0,-.01,0]});
@@ -125,7 +125,7 @@ var CurrentScene = {
                 //CurrentScene.users_by_id[user_id].rotate(CurrentScene.users_by_id[user_id].rotation_angle, [0,1,0], true);
                 CurrentScene.users_by_id[user_id].translate(CurrentScene.users_by_id[user_id].direction);
                 
-                CurrentScene.users_by_id[user_id].position = CurrentScene.walkarea.adjustPosition( CurrentScene.users_by_id[user_id].position );
+                //CurrentScene.users_by_id[user_id].position = CurrentScene.walkarea.adjustPosition( CurrentScene.users_by_id[user_id].position );
             }
     
             // CONTROL OF THE CURRENT USER
@@ -144,15 +144,26 @@ var CurrentScene = {
                 move_local[0] = 1;
             }
 
+            var start_table_2 = [137, 0, -1]; // 133 9
+            var start_table_3 = [145, 0, -19];
+            var table_size_area = [65,0, 24];
+
+
             if (gl.keys["E"]) {
                 //CurrentScene.camera_controller.look_at_point([0,0,0], [20, 20, 20]);
                 //CurrentScene.dialoge_controller.add_message("Juan", "Hwoeooo que tal jejeje", [0,5, 0]);
             }
 
             var is_character_movement_equal = true;
-            var is_moving = Math.sqrt(move_local[0]*move_local[0] + move_local[1]*move_local[1] + move_local[2]*move_local[2]) > 0.0;
+            var is_moving = Math.sqrt(move_local[0]*move_local[0] + move_local[2]*move_local[2]) > 0.0;
 
             if (Object.keys(CurrentScene.users_by_id).length > 0) {
+                if (AABB_collision(CurrentScene.users_by_id[CurrentScene.current_user_id].position, 
+                                    start_table_2, 
+                                    table_size_area)) {
+                    console.log("In table");
+                }
+
                 for(var i = 0; i < 3; i++) {
                     is_character_movement_equal = CurrentScene.users_by_id[CurrentScene.current_user_id].direction[i] == move_local[i];
                     if (!is_character_movement_equal) {
@@ -174,9 +185,11 @@ var CurrentScene = {
                 if (is_moving) {
                     CurrentScene.camera_controller.update_character(CurrentScene.users_by_id[CurrentScene.current_user_id].position);
                 }
+
+                console.log("pos", CurrentScene.users_by_id[CurrentScene.current_user_id].position);
+
             }
 
-            
             CurrentScene.camera_controller.update_camera();
         }
     
