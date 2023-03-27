@@ -40,20 +40,22 @@ var OverlayMenusController = {
 
     show_send_message_menu: function() {
         CurrentScene.message_box_on = true;
-        var message_box = document.createElement('div');
-        message_box.id = "message_box";
-        message_box.style.position = 'fixed';
-        message_box.style.left = '50px';
-        message_box.style.bottom = '30px';
+        this.message_box = document.createElement('div');
+        this.message_box.id = "message_box";
+
 
         var message_input = document.createElement('input');
         message_input.type = 'text';
         message_input.id = "message_input";
-        message_input.style.position = 'fixed';
-        message_input.style.left = '50px';
-        message_input.style.bottom = '30px';
+        //message_input.style.position = 'fixed';
+        //message_input.style.left = '50px';
+        //message_input.style.bottom = '30px';
 
-        message_input.addEventListener("focusout", (event) => {
+        var send_button = document.createElement('button');
+        send_button.id = "send_button";
+        send_button.innerHTML = "Send";
+
+        /*message_input.addEventListener("focusout", (event) => {
             message_box.remove();
         });
 
@@ -61,20 +63,23 @@ var OverlayMenusController = {
             if (!message_input.contains(e.target)){
                 message_box.remove();
             }
-        });
+        });*/
 
         message_input.addEventListener("keydown", function(e) {
             console.log(e);
             if (e.code === "Escape") {
-                message_box.remove();
+                OverlayMenusController.message_box.remove();
             } else if (e.code === "Enter") {
                 // Send message
+                ServerCommunication.send_message(message_input.value);
+                message_input.value = "";
             }
         });
 
 
-        message_box.append(message_input);
-        document.body.append(message_box);
+        this.message_box.append(message_input);
+        this.message_box.append(send_button);
+        document.body.append(this.message_box);
         message_input.focus();
     }
 };

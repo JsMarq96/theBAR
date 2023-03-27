@@ -35,8 +35,6 @@ var CurrentScene = {
 
         ServerCommunication.init();
 
-        OverlayMenusController.show_send_message_menu();
-
         // Seated positions
         this.seated_positions = {
             'table_1': { 0 : [76, 4, -84], 
@@ -164,6 +162,13 @@ var CurrentScene = {
         //launch loop
         context.animate();
     
+    },
+
+    change_to_seated_mode: function(table_id, seat_id) {
+
+    },
+    change_to_free_roam_mode: function() {
+
     },
 
     // WEB BASED EVENTS

@@ -6,8 +6,6 @@ var CharacterController = {
             return;
         }
 
-        var move_local = [0, 0, 0];
-
         if (CurrentScene.users_by_id[CurrentScene.current_user_id].mode == FREE_ROAM) {
             this.free_roaming_update();
         } else if (CurrentScene.users_by_id[CurrentScene.current_user_id].mode == SEATED) {
@@ -16,6 +14,7 @@ var CharacterController = {
     },
 
     free_roaming_update: function() {
+        var move_local = [0, 0, 0];
         if (gl.keys["UP"] || gl.keys["W"]) {
             move_local[2] = -1;
         }

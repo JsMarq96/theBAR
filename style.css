@@ -1,3 +1,8 @@
+* {
+    padding: 0px;
+    margin: 0px;
+}
+
 #login_menu {
     width: 500px;
     height: 200px;
@@ -8,6 +13,29 @@ input {
     width: 450px;
 }
 
+#message_box {
+    width: 80%;
+    height: 8%;
+    position: fixed;
+    left: 50px;
+    bottom: 30px;
+}
+
+
 #message_input {
-    width: 600px;
+    width: 80%;
+    height: 100%;
+    font-size: 20px;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    border: 0px;
+}
+
+#send_button {
+    width: 20%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    right: 0px;
 }
