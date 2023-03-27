@@ -12,6 +12,11 @@ const FREE_ROAM = 0;
 const SEATED = 1;
 
 
+var start_table_2 = [137, 0, -1];
+var start_table_3 = [204, 0, -1];
+var table_size_area = [65,0, 24];
+
+
 function get_rotation_angle(pos, pos_towards) {
     var position = [];
     vec3.sub(position, pos_towards, pos);
@@ -30,12 +35,24 @@ var CurrentScene = {
 
         ServerCommunication.init();
 
-        MenusController.show_send_message_menu();
+        OverlayMenusController.show_send_message_menu();
 
         // Seated positions
         this.seated_positions = {
-            'table_1': { 0 : [], 1 : [], 2: [], 3 : [], 4 : [], 5 : [], 6 : [] },
-            'table_2': { 0 : [], 1 : [], 2: [], 3 : [], 4 : [], 5 : [], 6 : [] },
+            'table_1': { 0 : [76, 4, -84], 
+                         1 : [127, 4, -84], 
+                         2:  [76, 4, -57], 
+                         3 : [127, 4, -57], 
+                         4 : [], 
+                         5 : [], 
+                         6 : [] },
+            'table_2': { 0 : [76, 4, -84], 
+                         1 : [127, 4, -84], 
+                         2:  [76, 4, -57], 
+                         3 : [127, 4, -57],  
+                         4 : [], 
+                         5 : [], 
+                         6 : [] },
             'table_3': { 0 : [], 1 : [], 2: [], 3 : [], 4 : [], 5 : [], 6 : [] },
         };
 
@@ -62,12 +79,17 @@ var CurrentScene = {
         this.walkarea = new WalkArea();
         this.walkarea.addRect([-50,0,-30],80,50);
         this.walkarea.addRect([-90,0,-10],80,20);
-        this.walkarea.addRect([-110,0,-30],40,50);
+        this.walkarea.addRect([-110,0,-30],40,50); // 35, 0 ,8
+
+        InGameMenuController.init(this.scene);
     
         //load a GLTF for the room
         var room = new RD.SceneNode({scaling:40,position:[0,-.01,0]});
         room.loadGLTF("data/room4.glb");
+        room.shader = "phong";
         this.scene.root.addChild( room );
+
+        console.log("shader", gl.shaders);
     
         this.character = new RD.SceneNode({scaling:5.0,position:[0,-.01,0]});
         this.character.loadGLTF("data/box.glb");
@@ -78,8 +100,10 @@ var CurrentScene = {
         
         this.camera_controller = CameraController.init([0, 40, 100], this.character.position);
         this.dialoge_controller = DialogeController.init(this.scene);
+
+        
     
-        MenusController.show_login_menu();
+        OverlayMenusController.show_login_menu();
 
         // main loop ***********************
     
@@ -113,7 +137,7 @@ var CurrentScene = {
                 }
                 var user_direction = CurrentScene.users_by_id[user_id].direction;
 
-                if (Math.sqrt(user_direction[0]*user_direction[0] + user_direction[1]*user_direction[1] + user_direction[2]*user_direction[2]) <= 0.0) {
+                if (Math.sqrt(user_direction[0]*user_direction[0] + user_direction[2]*user_direction[2]) <= 0.0) {
                     continue;
                 }
 
@@ -122,73 +146,13 @@ var CurrentScene = {
 
                 CurrentScene.users_by_id[user_id].rotation_angle = Math.lerp(CurrentScene.users_by_id[user_id], get_rotation_angle(CurrentScene.character.position, facing_point), 0.25);
 
-                //CurrentScene.users_by_id[user_id].rotate(CurrentScene.users_by_id[user_id].rotation_angle, [0,1,0], true);
                 CurrentScene.users_by_id[user_id].translate(CurrentScene.users_by_id[user_id].direction);
-                
-                //CurrentScene.users_by_id[user_id].position = CurrentScene.walkarea.adjustPosition( CurrentScene.users_by_id[user_id].position );
             }
     
             // CONTROL OF THE CURRENT USER
             //control with keys
-            var move_local = [0,0,0];
-            if (gl.keys["UP"] || gl.keys["W"]) {
-                move_local[2] = -1;
-            }
-            if (gl.keys["DOWN"] || gl.keys["S"]) {
-                move_local[2] = 1;
-            }
-            if (gl.keys["LEFT"] || gl.keys["A"]) {
-                move_local[0] = -1;
-            }
-            if (gl.keys["RIGHT"] || gl.keys["D"]) {
-                move_local[0] = 1;
-            }
-
-            var start_table_2 = [137, 0, -1]; // 133 9
-            var start_table_3 = [145, 0, -19];
-            var table_size_area = [65,0, 24];
-
-
-            if (gl.keys["E"]) {
-                //CurrentScene.camera_controller.look_at_point([0,0,0], [20, 20, 20]);
-                //CurrentScene.dialoge_controller.add_message("Juan", "Hwoeooo que tal jejeje", [0,5, 0]);
-            }
-
-            var is_character_movement_equal = true;
-            var is_moving = Math.sqrt(move_local[0]*move_local[0] + move_local[2]*move_local[2]) > 0.0;
-
-            if (Object.keys(CurrentScene.users_by_id).length > 0) {
-                if (AABB_collision(CurrentScene.users_by_id[CurrentScene.current_user_id].position, 
-                                    start_table_2, 
-                                    table_size_area)) {
-                    console.log("In table");
-                }
-
-                for(var i = 0; i < 3; i++) {
-                    is_character_movement_equal = CurrentScene.users_by_id[CurrentScene.current_user_id].direction[i] == move_local[i];
-                    if (!is_character_movement_equal) {
-                        break;
-                    }
-                }
-    
-                if (!is_character_movement_equal) {
-                    if (is_moving) {
-                        ServerCommunication.send_start_moving_character(CurrentScene.users_by_id[CurrentScene.current_user_id].position, move_local);
-                    } else {
-                        ServerCommunication.send_stop_moving_characte(CurrentScene.users_by_id[CurrentScene.current_user_id].position);
-                    }
-    
-                }
-    
-                //CurrentScene.users_by_id[CurrentScene.current_user_id].direction = [... move_local]; 
-    
-                if (is_moving) {
-                    CurrentScene.camera_controller.update_character(CurrentScene.users_by_id[CurrentScene.current_user_id].position);
-                }
-
-                console.log("pos", CurrentScene.users_by_id[CurrentScene.current_user_id].position);
-
-            }
+            
+            CharacterController.player_update();
 
             CurrentScene.camera_controller.update_camera();
         }
@@ -246,6 +210,18 @@ var CurrentScene = {
     user_exit_table: function(user_id, position) {
         CurrentScene.users_by_id[user_id].position = [... position];
         CurrentScene.users_by_id[user_id].rotation_angle = 1.5707963267948966;
+        CurrentScene.users_by_id[user_id].mode = FREE_ROAM;
+    },
+    seat_user: function(user_id, table_id, seat_id) {
+        CurrentScene.users_by_id[user_id].rotation_angle = 1.5707963267948966;
+        CurrentScene.users_by_id[user_id].position = [... this.seated_positions[table_id][seat_id]];
+        CurrentScene.users_by_id[user_id].direction = [0,0,0];
+        CurrentScene.users_by_id[user_id].mode = SEATED;
+    },
+    free_roam_user: function(user_id, position) {
+        CurrentScene.users_by_id[user_id].rotation_angle = 1.5707963267948966;
+        CurrentScene.users_by_id[user_id].position = [... position];
+        CurrentScene.users_by_id[user_id].direction = [0,0,0];
         CurrentScene.users_by_id[user_id].mode = FREE_ROAM;
     }
 };

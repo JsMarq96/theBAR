@@ -21,6 +21,10 @@ var ServerCommunication = {
   send_stop_moving_characte: function (position) {
     socket.send(JSON.stringify({'type':'stop_moving','end_pos': position}));
   },
+
+  try_to_sit_at_table: function(table_id) {
+    socket.send(JSON.stringify({'type': 'move_to_table', 'table': table_id}));
+  },
   
   init: function() {
     // Config serverside socket
@@ -81,6 +85,14 @@ var ServerCommunication = {
         // TODO
     
         alert("User registered correctly!");
+      } else if (msg_obj.type.localeCompare("move_to_table") == 0) {
+        // TODO
+        CurrentScene.seat_user(msg_obj.user_id, msg_obj.table, msg_obj.seat);
+      } else if (msg_obj.type.localeCompare("full_table") == 0) {
+        // TODO
+        alert("The table is full!");
+      } else if (msg_obj.type.localeCompare("outside_table") == 0) {
+        CurrentScene.free_roam_user(msg_obj.user_id, msg_obj.new_pos);
       }
       });
   }

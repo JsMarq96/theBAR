@@ -1,5 +1,5 @@
 
-var MenusController = {
+var OverlayMenusController = {
     init: function(){
     },
     show_login_menu: function() {
