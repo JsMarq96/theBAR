@@ -35,37 +35,37 @@ var CurrentScene = {
 
         ServerCommunication.init();
 
+        CharacterController.init();
+
+        OverlayMenusController.init();
+
         this.mode = FREE_ROAM;
 
         // Seated positions
         this.seated_positions = {
-            'table_1': { 0 : [76, 4, -84], 
-                         1 : [127, 4, -84], 
-                         2:  [76, 4, -57], 
+            'table_1': { 0 : [77, 20, -83], 
+                         1 : [127, 20, -84], 
+                         2:  [76, 20, -57], 
                          3 : [127, 4, -57], 
-                         4 : [], 
-                         5 : [], 
-                         6 : [] },
-            'table_2': { 0 : [76, 4, -84], 
-                         1 : [127, 4, -84], 
-                         2:  [76, 4, -57], 
-                         3 : [127, 4, -57],  
-                         4 : [], 
-                         5 : [], 
-                         6 : [] },
-            'table_3': { 0 : [], 1 : [], 2: [], 3 : [], 4 : [], 5 : [], 6 : [] },
+                        },
+            'table_2': { 0 : [77, 15, -83], 
+                         1 : [125, 15, -83], 
+                         2:  [77, 15, -43], 
+                         3 : [125, 15, -41],  
+                         },
+            'table_3': { 0 : [155, 20, -85], 1 : [200, 20, -85], 2: [153, 20, -46], 3 : [200, 20, -46] },
         };
 
         this.seated_orientations = {
-            'table_1': { 0 : 0.0, 1 : 0.0, 2: 0.0, 3 : 0.0, 4 : 0.0, 5 : 0.0, 6 : 0.0 },
-            'table_2': { 0 : 0.0, 1 : 0.0, 2: 0.0, 3 : 0.0, 4 : 0.0, 5 : 0.0, 6 : 0.0 },
-            'table_3': { 0 : 0.0, 1 : 0.0, 2: 0.0, 3 : 0.0, 4 : 0.0, 5 : 0.0, 6 : 0.0 },
+            'table_1': { 0 : 0.0, 1 : 0.0, 2: 0.0, 3 : 0.0 },
+            'table_2': { 0 : 0.0, 1 : 0.0, 2: 0.0, 3 : 0.0 },
+            'table_3': { 0 : 0.0, 1 : 0.0, 2: 0.0, 3 : 0.0 },
         };
         
         this.table_camera = {
-            'table_1':{ pos: [], loot_at: [] },
-            'table_2':{ pos: [], loot_at: [] },
-            'table_3':{ pos: [], loot_at: [] }
+            'table_1':{ pos: [], look_at: [] },
+            'table_2':{ pos: [101, 30, 21], look_at: [101, 40, -78] },
+            'table_3':{ pos: [176, 6, 21], lool_at: [176, 7, -84] }
         };
 
         //create the rendering context
@@ -186,7 +186,7 @@ var CurrentScene = {
         this.mode = SEATED;
         this.curr_table = table_id;
         this.curr_seat = seat_id;
-        CameraControlCurrentScene.camera_controllerler.loot_at_point(this.table_camera[table_id].loot_at, this.table_camera[table_id].pos);
+        CurrentScene.camera_controller.look_at_point(this.table_camera[table_id].look_at, this.table_camera[table_id].pos);
     },
 
     change_to_free_roam_mode: function() {

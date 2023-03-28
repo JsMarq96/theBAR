@@ -51,6 +51,6 @@ var CameraController = {
         var diff = [];
         vec3.sub(diff, pos, this.camera.position);
 
-        return vec3.lenght(diff) < 1.0;
+        return vec3.length(diff) < 1.0;
     }
 };

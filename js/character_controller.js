@@ -1,6 +1,10 @@
 
 var CharacterController = {
 
+    init: function() {
+        this.can_interact = true;
+    },
+
     player_update: function () {
         if (Object.keys(CurrentScene.users_by_id).length == 0) {
             return;
@@ -28,9 +32,10 @@ var CharacterController = {
             move_local[0] = 1;
         }
 
-        if (gl.keys["E"]) {
+        if (gl.keys["E"] && this.can_interact) {
             if (this.table_to_sit != null) {
                 ServerCommunication.try_to_sit_at_table(this.table_to_sit);
+                this.can_interact = false;
             }
         }
 
@@ -77,6 +82,6 @@ var CharacterController = {
         //console.log("pos", CurrentScene.users_by_id[CurrentScene.current_user_id].position);
     },
     seated_update: function () {
-
+        
     }
 };

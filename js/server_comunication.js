@@ -26,6 +26,10 @@ var ServerCommunication = {
     socket.send(JSON.stringify({'type': 'move_to_table', 'table': table_id}));
   },
 
+  move_out_of_table: function() {
+    socket.send(JSON.stringify({'type': 'move_out_of_table'}));
+  },
+
   send_message: function(msg) {
     socket.send(JSON.stringify({'type': 'message', 'message': msg}));
   },
@@ -42,7 +46,7 @@ var ServerCommunication = {
     });
   
     socket.addEventListener('message', (event) => {
-      console.log(event.data);
+      //console.log(event.data);
       var msg_obj = JSON.parse(event.data);
     
       if (msg_obj.type.localeCompare("logged_in") == 0) {
@@ -104,6 +108,7 @@ var ServerCommunication = {
         if (parseInt(msg_obj.user_id) == CurrentScene.current_user_id) {
           // Change mode to seated!
           CurrentScene.change_to_seated_mode(msg_obj.table, msg_obj.seat);
+          CharacterController.can_interact = true;
         }
         CurrentScene.seat_user(parseInt(msg_obj.user_id), 
                                msg_obj.table, 
@@ -111,10 +116,12 @@ var ServerCommunication = {
       } else if (msg_obj.type.localeCompare("full_table") == 0) {
         // TODO
         alert("The table is full!");
+        CharacterController.can_interact = true;
       } else if (msg_obj.type.localeCompare("outside_table") == 0) {
         if (parseInt(msg_obj.user_id) == CurrentScene.current_user_id) {
           // Change mode to seated!
           CurrentScene.change_to_free_roam_mode();
+          CharacterController.can_interact = true;
         }
         CurrentScene.free_roam_user(parseInt(msg_obj.user_id), 
                                     msg_obj.new_pos);

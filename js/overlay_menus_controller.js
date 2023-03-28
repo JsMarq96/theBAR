@@ -1,6 +1,7 @@
 
 var OverlayMenusController = {
     init: function(){
+        this.message_box_on = false;
     },
     show_login_menu: function() {
         var login_container = document.createElement('div');
@@ -39,47 +40,52 @@ var OverlayMenusController = {
     },
 
     show_send_message_menu: function() {
-        CurrentScene.message_box_on = true;
-        this.message_box = document.createElement('div');
-        this.message_box.id = "message_box";
+        if (!this.message_box_on) {
+            this.message_box_on = true;
+            this.message_box = document.createElement('div');
+            this.message_box.id = "message_box";
 
 
-        var message_input = document.createElement('input');
-        message_input.type = 'text';
-        message_input.id = "message_input";
-        //message_input.style.position = 'fixed';
-        //message_input.style.left = '50px';
-        //message_input.style.bottom = '30px';
+            var message_input = document.createElement('input');
+            message_input.type = 'text';
+            message_input.id = "message_input";
+            //message_input.style.position = 'fixed';
+            //message_input.style.left = '50px';
+            //message_input.style.bottom = '30px';
 
-        var send_button = document.createElement('button');
-        send_button.id = "send_button";
-        send_button.innerHTML = "Send";
+            var send_button = document.createElement('button');
+            send_button.id = "send_button";
+            send_button.innerHTML = "Send";
 
-        /*message_input.addEventListener("focusout", (event) => {
-            message_box.remove();
-        });
-
-        message_input.addEventListener('click', function(e){   
-            if (!message_input.contains(e.target)){
+            /*message_input.addEventListener("focusout", (event) => {
                 message_box.remove();
-            }
-        });*/
+            });
 
-        message_input.addEventListener("keydown", function(e) {
-            console.log(e);
-            if (e.code === "Escape") {
-                OverlayMenusController.message_box.remove();
-            } else if (e.code === "Enter") {
-                // Send message
-                ServerCommunication.send_message(message_input.value);
-                message_input.value = "";
-            }
-        });
+            message_input.addEventListener('click', function(e){   
+                if (!message_input.contains(e.target)){
+                    message_box.remove();
+                }
+            });*/
+
+            message_input.addEventListener("keydown", function(e) {
+                console.log(e);
+                if (e.code === "Escape" && CurrentScene.mode == SEATED) {
+                    console.log(OverlayMenusController);
+                    OverlayMenusController.message_box.parentNode.removeChild(OverlayMenusController.message_box);
+                    ServerCommunication.move_out_of_table();
+                    OverlayMenusController.message_box_on = false;
+                } else if (e.code === "Enter") {
+                    // Send message
+                    ServerCommunication.send_message(message_input.value);
+                    message_input.value = "";
+                }
+            });
 
 
-        this.message_box.append(message_input);
-        this.message_box.append(send_button);
-        document.body.append(this.message_box);
-        message_input.focus();
+            this.message_box.append(message_input);
+            this.message_box.append(send_button);
+            document.body.append(this.message_box);
+            message_input.focus();
+        }
     }
 };
