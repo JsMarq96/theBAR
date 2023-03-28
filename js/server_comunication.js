@@ -119,6 +119,13 @@ var ServerCommunication = {
         CurrentScene.free_roam_user(parseInt(msg_obj.user_id), 
                                     msg_obj.new_pos);
       } else if (msg_obj.type.localeCompare("message") == 0) {
+        if (CurrentScene.mode == SEATED) {
+          var user = CurrentScene.users_by_id[msg_obj.user.id];
+          DialogeController.add_message(msg_obj.user_id, 
+                                        msg_obj.message, 
+                                        user.table, 
+                                        user.seat);
+        }
         console.log("New message!");
       }
     });

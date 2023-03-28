@@ -73,28 +73,52 @@ var DialogeController = {
         this.in_scene_messages = [];
         this.scene = scene;
 
+        this.message_pos = {
+            'table_2': { 0 : [76, 4, -84], 
+                         1 : [127, 4, -84], 
+                         2:  [76, 4, -57], 
+                         3 : [127, 4, -57],  
+                         4 : [], 
+                         5 : [], 
+                         6 : [] },
+            'table_3': { 0 : [76, 4, -84], 
+                         1 : [127, 4, -84], 
+                         2:  [76, 4, -57], 
+                         3 : [127, 4, -57], 
+                         4 : [], 
+                         5 : [], 
+                         6 : [] },
+        };
+
         return this;
     },
-    add_message: function(from, message, position) {
+    add_message: function(from, message, table_id, seat_id) {
         var texture_id = ":canvas" + from + '_' + new Date().getTime();
 
         gl.textures[texture_id] = get_message_texture(from, message);
 
         var panel = new RD.SceneNode({mesh:"plane",scale:[text.width/5.0,text.height/5.0,1],flags:{two_sided:true}});
         panel.texture = texture_id; //assign canvas texture to node
-        panel.position = [... position];
+        panel.position = [... this.message_pos[table_id][seat_id]];
         panel.text_id = texture_id;
         this.scene.root.addChild(panel);
 
-        if (this.in_scene_messages.length > 6) {
-            var to_delete = this.in_scene_messages.shift();
+        if (this.in_scene_messages.length > 0) { 
+            if (this.in_scene_messages.length > 6) {
+                var to_delete = this.in_scene_messages.shift();
+    
+                // TODO clean texture
+                //const index_of = gl.textures.indexOf(to_delete.text_id);
+                //gl.textures.splice(index_of, 1);
+    
+                this.scene.root.removeChild(to_delete);
+                delete to_delete;
+            }
 
-            // TODO clean texture
-            //const index_of = gl.textures.indexOf(to_delete.text_id);
-            //gl.textures.splice(index_of, 1);
-
-            this.scene.root.removeChild(to_delete);
-            delete to_delete;
+            // move upwards all the messages
+            for(var i = 0; i < this.in_scene_messages.length; i++) {
+                this.in_scene_messages[i].position[1] += (text.height/5.0) + 20.0;
+            }
         }
 
         this.in_scene_messages.push(panel);

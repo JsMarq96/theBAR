@@ -35,6 +35,8 @@ var CurrentScene = {
 
         ServerCommunication.init();
 
+        this.mode = FREE_ROAM;
+
         // Seated positions
         this.seated_positions = {
             'table_1': { 0 : [76, 4, -84], 
@@ -58,6 +60,12 @@ var CurrentScene = {
             'table_1': { 0 : 0.0, 1 : 0.0, 2: 0.0, 3 : 0.0, 4 : 0.0, 5 : 0.0, 6 : 0.0 },
             'table_2': { 0 : 0.0, 1 : 0.0, 2: 0.0, 3 : 0.0, 4 : 0.0, 5 : 0.0, 6 : 0.0 },
             'table_3': { 0 : 0.0, 1 : 0.0, 2: 0.0, 3 : 0.0, 4 : 0.0, 5 : 0.0, 6 : 0.0 },
+        };
+        
+        this.table_camera = {
+            'table_1':{ pos: [], loot_at: [] },
+            'table_2':{ pos: [], loot_at: [] },
+            'table_3':{ pos: [], loot_at: [] }
         };
 
         //create the rendering context
@@ -152,6 +160,8 @@ var CurrentScene = {
             
             CharacterController.player_update();
 
+            CurrentScene.update_misc();
+
             CurrentScene.camera_controller.update_camera();
         }
     
@@ -161,14 +171,29 @@ var CurrentScene = {
     
         //launch loop
         context.animate();
-    
     },
 
+    update_misc: function() {
+        if (this.mode == SEATED) {
+            if (CurrentScene.camera_controller.is_camera_at(this.table_camera[this.curr_table].pos)) {
+                OverlayMenusController.show_send_message_menu();
+            }
+        }
+    },
+
+    // Only called if the currentclient is going to sit
     change_to_seated_mode: function(table_id, seat_id) {
-
+        this.mode = SEATED;
+        this.curr_table = table_id;
+        this.curr_seat = seat_id;
+        CameraControlCurrentScene.camera_controllerler.loot_at_point(this.table_camera[table_id].loot_at, this.table_camera[table_id].pos);
     },
-    change_to_free_roam_mode: function() {
 
+    change_to_free_roam_mode: function() {
+        this.mode = FREE_ROAM;
+        this.curr_table = null;
+        this.curr_seat = null;
+        CurrentScene.camera_controller.switch_camera_mode();
     },
 
     // WEB BASED EVENTS
@@ -211,22 +236,30 @@ var CurrentScene = {
         CurrentScene.users_by_id[user_id].position = [... this.seated_positions[table_id][seat_id]];
         CurrentScene.users_by_id[user_id].rotation_angle = this.seated_orientations[table_id][seat_id];
         CurrentScene.users_by_id[user_id].mode = SEATED;
+        CurrentScene.users_by_id[user_id].table = table_id;
+        CurrentScene.users_by_id[user_id].seat = seat_id;
     },
     user_exit_table: function(user_id, position) {
         CurrentScene.users_by_id[user_id].position = [... position];
         CurrentScene.users_by_id[user_id].rotation_angle = 1.5707963267948966;
         CurrentScene.users_by_id[user_id].mode = FREE_ROAM;
+        CurrentScene.users_by_id[user_id].table = null;
+        CurrentScene.users_by_id[user_id].seat = null;
     },
     seat_user: function(user_id, table_id, seat_id) {
         CurrentScene.users_by_id[user_id].rotation_angle = 1.5707963267948966;
         CurrentScene.users_by_id[user_id].position = [... this.seated_positions[table_id][seat_id]];
         CurrentScene.users_by_id[user_id].direction = [0,0,0];
         CurrentScene.users_by_id[user_id].mode = SEATED;
+        CurrentScene.users_by_id[user_id].table = table_id;
+        CurrentScene.users_by_id[user_id].seat = seat_id;
     },
     free_roam_user: function(user_id, position) {
         CurrentScene.users_by_id[user_id].rotation_angle = 1.5707963267948966;
         CurrentScene.users_by_id[user_id].position = [... position];
         CurrentScene.users_by_id[user_id].direction = [0,0,0];
         CurrentScene.users_by_id[user_id].mode = FREE_ROAM;
+        CurrentScene.users_by_id[user_id].table = null;
+        CurrentScene.users_by_id[user_id].seat = null;
     }
 };
