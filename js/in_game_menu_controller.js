@@ -28,5 +28,11 @@ var InGameMenuController = {
             this.scene.root.removeChild(this.sit_to_table);
             this.sit_to_table = null;
         }
+    },
+    hide_all_menus: function() {
+        if (this.sit_to_table != null) {
+            this.scene.root.removeChild(this.sit_to_table);
+            this.sit_to_table = null;
+        }
     }
 };

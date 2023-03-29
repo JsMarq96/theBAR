@@ -91,7 +91,7 @@ var CurrentScene = {
     
         //load a GLTF for the room
         var room = new RD.SceneNode({scaling:40,position:[0,-.01,0]});
-        room.loadGLTF("data/room4.glb");
+        room.loadGLTF("data/room.glb");
         room.shader = "phong";
         this.scene.root.addChild( room );
 
@@ -107,7 +107,8 @@ var CurrentScene = {
         this.camera_controller = CameraController.init([0, 40, 100], this.character.position);
         this.dialoge_controller = DialogeController.init(this.scene);
 
-        
+        //DialogeController.add_message("Tasdad", "Lmao", 'table_2', 0);
+        //DialogeController.add_message("T", "Lmaof esf effefefs sfsefsf", 'table_2', 0);
     
         OverlayMenusController.show_login_menu();
 
@@ -184,6 +185,7 @@ var CurrentScene = {
 
     // Only called if the currentclient is going to sit
     change_to_seated_mode: function(table_id, seat_id) {
+        InGameMenuController.hide_all_menus();
         this.mode = SEATED;
         this.curr_table = table_id;
         this.curr_seat = seat_id;
@@ -198,7 +200,7 @@ var CurrentScene = {
         document.getElementById("message_box").remove();
         OverlayMenusController.message_box_on = false;
 
-
+        DialogeController.remove_all_messages();
     },
 
     // WEB BASED EVENTS

@@ -16,11 +16,11 @@ function get_message_texture(user, txt) {
     var text_lines = txt.match(/.{1,19}/g);
     var line_size = Math.min(txt.length, 15);
 
-    var user_name_width = user.length * 12 + 4;
+    var user_name_width = user.length * 9 + 12;
 
     var subcanvas = document.createElement("canvas");
-    subcanvas.width = line_size * 13 + 5;
-    subcanvas.height = text_lines.length * 20 + 10 + 8 + 13;
+    subcanvas.width = line_size * 11 + 26;
+    subcanvas.height = text_lines.length * 20 + 10 + 8 + 18;
 
     var subctx = subcanvas.getContext("2d");
     subctx.fillStyle = "white";
@@ -74,15 +74,15 @@ var DialogeController = {
         this.scene = scene;
 
         this.message_pos = {
-            'table_2': { 0 : [79, 30, -90], 
-                         1 : [119,  30, -90], 
-                         2:  [85,  30, -80], 
-                         3 : [122,  30, -80],
+            'table_2': { 0 : [79, 50, -90], 
+                         1 : [119,  50, -90], 
+                         2:  [85,  50, -80], 
+                         3 : [122,  50, -80],
                         },
-            'table_3': { 0 : [155,  30, -90], 
-                            1 : [198,  30, -90], 
-                            2:  [163,  30, -80], 
-                            3 : [193,  30, -80],
+            'table_3': { 0 : [155,  50, -90], 
+                            1 : [198,  50, -90], 
+                            2:  [163,  50, -80], 
+                            3 : [193,  50, -80],
                         },
         };
 
@@ -104,8 +104,7 @@ var DialogeController = {
                 var to_delete = this.in_scene_messages.shift();
     
                 // TODO clean texture
-                //const index_of = gl.textures.indexOf(to_delete.text_id);
-                //gl.textures.splice(index_of, 1);
+                delete gl.textures[to_delete.text_id];
     
                 this.scene.root.removeChild(to_delete);
                 delete to_delete;
@@ -125,10 +124,9 @@ var DialogeController = {
         while(this.in_scene_messages.length > 0) {
             var to_delete = this.in_scene_messages.shift();
 
-            this.scene.removeChild(to_delete);
+            this.scene.root.removeChild(to_delete);
 
-            const index_of = gl.textures.indexOf(to_delete.text_id);
-            gl.textures.splice(index_of, 1);
+            delete gl.textures[to_delete.text_id];
 
             delete to_delete;
         }
