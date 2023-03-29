@@ -74,15 +74,15 @@ var DialogeController = {
         this.scene = scene;
 
         this.message_pos = {
-            'table_2': { 0 : [79, 5, -90], 
-                         1 : [119, 5, -90], 
-                         2:  [85, 5, -80], 
-                         3 : [122, 5, -80],
+            'table_2': { 0 : [79, 30, -90], 
+                         1 : [119,  30, -90], 
+                         2:  [85,  30, -80], 
+                         3 : [122,  30, -80],
                         },
-            'table_3': { 0 : [155, 5, -90], 
-                            1 : [198, 5, -90], 
-                            2:  [163, 5, -80], 
-                            3 : [193, 5, -80],
+            'table_3': { 0 : [155,  30, -90], 
+                            1 : [198,  30, -90], 
+                            2:  [163,  30, -80], 
+                            3 : [193,  30, -80],
                         },
         };
 
@@ -113,7 +113,9 @@ var DialogeController = {
 
             // move upwards all the messages
             for(var i = 0; i < this.in_scene_messages.length; i++) {
-                this.in_scene_messages[i].position[1] += (text.height/5.0) + 5.0;
+                console.log(this.in_scene_messages[i].position);
+                var temp_pos = [0, (text.height/5.0), 0];//(text.height/5.0) + 20.0;
+                this.in_scene_messages[i].translate(temp_pos);
             }
         }
 

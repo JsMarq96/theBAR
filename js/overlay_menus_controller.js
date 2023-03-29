@@ -68,12 +68,10 @@ var OverlayMenusController = {
             });*/
 
             message_input.addEventListener("keydown", function(e) {
-                console.log(e);
                 if (e.code === "Escape" && CurrentScene.mode == SEATED) {
-                    console.log(OverlayMenusController);
-                    OverlayMenusController.message_box.parentNode.removeChild(OverlayMenusController.message_box);
+                    console.log("fef", OverlayMenusController);
+                    //OverlayMenusController.message_box.parentNode.removeChild(OverlayMenusController.message_box);
                     ServerCommunication.move_out_of_table();
-                    OverlayMenusController.message_box_on = false;
                 } else if (e.code === "Enter") {
                     // Send message
                     ServerCommunication.send_message(message_input.value);

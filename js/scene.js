@@ -181,6 +181,7 @@ var CurrentScene = {
         }
     },
 
+
     // Only called if the currentclient is going to sit
     change_to_seated_mode: function(table_id, seat_id) {
         this.mode = SEATED;
@@ -194,6 +195,10 @@ var CurrentScene = {
         this.curr_table = null;
         this.curr_seat = null;
         CurrentScene.camera_controller.switch_camera_mode();
+        document.getElementById("message_box").remove();
+        OverlayMenusController.message_box_on = false;
+
+
     },
 
     // WEB BASED EVENTS

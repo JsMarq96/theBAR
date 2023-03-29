@@ -127,8 +127,8 @@ var ServerCommunication = {
                                     msg_obj.new_pos);
       } else if (msg_obj.type.localeCompare("message") == 0) {
         if (CurrentScene.mode == SEATED) {
-          var user = CurrentScene.users_by_id[msg_obj.user.id];
-          DialogeController.add_message(msg_obj.user_id, 
+          var user = CurrentScene.users_by_id[msg_obj.from];
+          DialogeController.add_message(msg_obj.from, 
                                         msg_obj.message, 
                                         user.table, 
                                         user.seat);
