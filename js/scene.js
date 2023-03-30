@@ -39,6 +39,8 @@ var CurrentScene = {
 
         OverlayMenusController.init();
 
+        MusicController.init();
+
         this.mode = FREE_ROAM;
 
         // Seated positions

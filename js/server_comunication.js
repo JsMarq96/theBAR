@@ -54,6 +54,9 @@ var ServerCommunication = {
         CurrentScene.current_user_id = msg_obj.id;
         
         document.getElementById("login_menu").remove();
+
+        // Start the music playlist. synchronized to the other users
+        MusicController.play_with_begin(new Date(msg_obj.starting_playlist_date));
   
         // Add in table users
         for(const table in msg_obj.room_state.tables) {

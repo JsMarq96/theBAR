@@ -1,6 +1,4 @@
 
-
-
 var MusicController = {
     init: function() {
 
@@ -22,28 +20,64 @@ var MusicController = {
         };
 
         this.tracks_name_length = {
-            "The Heaven of my Hell": 0,
-            "Devil Trigger (TDNR)": 0,
-            "Life Goes On": 0,
-            "The Dante Dance": 0,
-            "Layer Cake": 0,
-            "Beneath the Mask": 0
+            "The Heaven of my Hell": 36.963313,
+            "Devil Trigger (TDNR)": 127.921708,
+            "Life Goes On": 152.085,
+            "The Dante Dance": 47.177208,
+            "Layer Cake": 267.44175,
+            "Beneath the Mask": 279.222938
         };
 
+        this.tracks_length = [
+            36.963313,
+            127.921708,
+            152.085,
+            47.177208,
+            267.44175,
+            279.222938
+        ];
+
         this.current_index = 0;
+
+        this.audio_player = new Audio();
+        this.audio_player.addEventListener("ended", () => {
+            this.current_index = (this.current_index + 1) %this.tracks_length.length;
+            this.audio_player.src = this.tracks_name_dir[this.playlist[this.current_index]];
+            this.audio_player.load();
+            this.audio_player.addEventListener("loadeddata", () => {
+                this.audio_player.currentTime = 0;
+                this.audio_player.volume = 0.25;
+                this.audio_player.play();
+            });
+        });
     },
 
     get_song_given_start_difference: function(difference_in_seconds){
         var diff = difference_in_seconds;
         var i = 0;
         while(true) {
-            if (this.tracks_name_length[i] > diff) {
+            if (this.tracks_length[i] > diff) {
                 break;
             }
-            diff -= this.tracks_name_length[i];
-            i = (i + 1) %this.tracks_name_length.length;
+            diff -= this.tracks_length[i];
+            i = (i + 1) %this.tracks_length.length;
         }
 
         return [i, diff];
+    },
+    play: function(index, start) {
+        this.audio_player.src = this.tracks_name_dir[this.playlist[index]];
+        this.audio_player.load();
+        this.current_index = index;
+        this.audio_player.addEventListener("loadeddata", () => {
+            this.audio_player.currentTime = start;
+            this.audio_player.volume = 0.25;
+            this.audio_player.play();
+        });
+    },
+    play_with_begin: function(start_time) {
+        const diff_seconds = Math.abs((new Date()).getTime() - start_time.getTime()) / 1000.0;
+        const start_point = this.get_song_given_start_difference(diff_seconds);
+        this.play(start_point[0], start_point[1]);
     }
 };
