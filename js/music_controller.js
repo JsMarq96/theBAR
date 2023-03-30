@@ -23,7 +23,7 @@ var MusicController = {
             "The Heaven of my Hell": 36.963313,
             "Devil Trigger (TDNR)": 127.921708,
             "Life Goes On": 152.085,
-            "The Dante Dance": 47.177208,
+            "The Dante Dance": 33.792,
             "Layer Cake": 267.44175,
             "Beneath the Mask": 279.222938
         };
