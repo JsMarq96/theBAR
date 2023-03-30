@@ -38,6 +38,8 @@ var MusicController = {
         ];
 
         this.current_index = 0;
+        this.starting_index = 0;
+        this.starting_date = null;
 
         this.audio_player = new Audio();
         this.audio_player.addEventListener("ended", () => {
@@ -65,6 +67,20 @@ var MusicController = {
 
         return [i, diff];
     },
+    get_song_given_start_difference_with_ref: function(start_index, difference_in_seconds){
+        var diff = difference_in_seconds;
+        var i = start_index;
+        while(true) {
+            if (this.tracks_length[i] > diff) {
+                break;
+            }
+            diff -= this.tracks_length[i];
+            i = (i + 1) % this.tracks_length.length;
+            console.log(diff);
+        }
+
+        return [i, diff];
+    },
     play: function(index, start) {
         this.audio_player.src = this.tracks_name_dir[this.playlist[index]];
         this.audio_player.load();
@@ -78,6 +94,11 @@ var MusicController = {
     play_with_begin: function(start_time) {
         const diff_seconds = Math.abs((new Date()).getTime() - start_time.getTime()) / 1000.0;
         const start_point = this.get_song_given_start_difference(diff_seconds);
+        this.play(start_point[0], start_point[1]);
+    },
+    play_with_reference: function(start_time, start_index) {
+        const diff_seconds = Math.abs((new Date()).getTime() - start_time.getTime()) / 1000.0;
+        const start_point = this.get_song_given_start_difference_with_ref(start_index, diff_seconds);
         this.play(start_point[0], start_point[1]);
     }
 };

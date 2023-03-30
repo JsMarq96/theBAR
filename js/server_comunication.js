@@ -33,6 +33,10 @@ var ServerCommunication = {
   send_message: function(msg) {
     socket.send(JSON.stringify({'type': 'message', 'message': msg}));
   },
+
+  send_new_song: function(song_id) {
+    socket.send(JSON.stringify({'type': 'new_song', 'song_id': song_id}));
+  },
   
   init: function() {
     // Config serverside socket
@@ -56,7 +60,7 @@ var ServerCommunication = {
         document.getElementById("login_menu").remove();
 
         // Start the music playlist. synchronized to the other users
-        MusicController.play_with_begin(new Date(msg_obj.starting_playlist_date));
+        MusicController.play_with_reference(new Date(msg_obj.starting_playlist_date), parseInt(msg_obj.starting_song));
   
         // Add in table users
         for(const table in msg_obj.room_state.tables) {
@@ -137,6 +141,9 @@ var ServerCommunication = {
                                         user.seat);
         }
         console.log("New message!");
+      } else if (msg_obj.type.localeCompare("new_song") == 0) {
+        console.log("New musci", msg_obj.song_id);
+        MusicController.play_with_reference(new Date(msg_obj.starting_playlist_date), parseInt(msg_obj.starting_song));
       }
     });
   }
