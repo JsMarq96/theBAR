@@ -82,6 +82,8 @@ var ServerCommunication = {
                                              user.position, 
                                              user.direction);
         }
+
+        CurrentScene.camera_controller.update_character(CurrentScene.users_by_id[CurrentScene.current_user_id].position);
   
       } else if (msg_obj.type.localeCompare("start_moving") == 0) {
         // TODO

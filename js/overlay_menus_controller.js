@@ -2,6 +2,7 @@
 var OverlayMenusController = {
     init: function(){
         this.message_box_on = false;
+        this.jukebox_on = false;
     },
     show_login_menu: function() {
         var login_container = document.createElement('div');
@@ -84,6 +85,48 @@ var OverlayMenusController = {
             this.message_box.append(send_button);
             document.body.append(this.message_box);
             message_input.focus();
+        }
+    },
+
+    show_jukebox_menu: function() {
+        if (!this.jukebox_on) {
+            this.jukebox_box = document.createElement('div');
+            this.jukebox_box.id = "jukebox_menu";
+
+            var close_button = document.createElement("button");
+            close_button.id = "music_close_button";
+            close_button.innerHTML = "Close"
+            close_button.addEventListener("click", function(e) {
+                OverlayMenusController.jukebox_box.remove();
+                OverlayMenusController.jukebox_on = false;
+            });
+
+            this.jukebox_box.append(close_button);
+
+            var label = document.createElement('p');
+            label.innerHTML = "Jukebox: Select a new song";
+            label.id = "label_jukebox";
+            this.jukebox_box.append(label);
+
+            for(var i = 0; i < MusicController.playlist.length; i++) {
+                var button = document.createElement("button");
+                button.classList.add("music_button");
+                if (i == MusicController.current_index) {
+                    button.classList.add("selected_button");
+                    this.selected_jukebox_button = button;
+                }
+                button.innerHTML = MusicController.playlist[i];
+                button.index = i;
+                button.addEventListener("click", function(e){
+                    ServerCommunication.send_new_song(e.target.index);
+                });
+
+                this.jukebox_box.append(button);
+            }
+
+
+            document.body.append(this.jukebox_box);
+            this.jukebox_on = true;
         }
     }
 };

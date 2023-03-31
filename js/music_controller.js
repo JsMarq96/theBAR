@@ -62,7 +62,7 @@ var MusicController = {
                 break;
             }
             diff -= this.tracks_length[i];
-            i = (i + 1) %this.tracks_length.length;
+            i = (i + 1) % this.tracks_length.length;
         }
 
         return [i, diff];
@@ -75,7 +75,7 @@ var MusicController = {
                 break;
             }
             diff -= this.tracks_length[i];
-            i = (i + 1) % this.tracks_length.length;
+            i = (i + 1) % (this.tracks_length.length);
             console.log(diff);
         }
 

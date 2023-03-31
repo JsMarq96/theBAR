@@ -16,6 +16,9 @@ var start_table_2 = [137, 0, -1];
 var start_table_3 = [204, 0, -1];
 var table_size_area = [65,0, 24];
 
+var jukebox_area_origin = [54, 0, -35];
+var jukebox_area_size = [42, 0, 11];
+
 
 function get_rotation_angle(pos, pos_towards) {
     var position = [];
@@ -85,28 +88,20 @@ var CurrentScene = {
         this.scene = new RD.Scene();
     
         this.walkarea = new WalkArea();
-        this.walkarea.addRect([-50,0,-30],80,50);
-        this.walkarea.addRect([-90,0,-10],80,20);
-        this.walkarea.addRect([-110,0,-30],40,50); // 35, 0 ,8
+        this.walkarea.addRect([-5,0,-19],215,104);
+        this.walkarea.addRect([-6,0,-47],81,35);
+        //this.walkarea.addRect([-50,0,-30],80,50);
+        //this.walkarea.addRect([-90,0,-10],80,20);
+        //this.walkarea.addRect([-110,0,-30],40,50); // 35, 0 ,8
 
         InGameMenuController.init(this.scene);
     
         //load a GLTF for the room
         var room = new RD.SceneNode({scaling:40,position:[0,-.01,0]});
-        room.loadGLTF("data/room.glb");
-        room.shader = "phong";
+        room.loadGLTF("data/room4.glb");
         this.scene.root.addChild( room );
-
-        console.log("shader", gl.shaders);
-    
-        this.character = new RD.SceneNode({scaling:5.0,position:[0,-.01,0]});
-        this.character.loadGLTF("data/box.glb");
-        this.character.inital_rotation = [... this.character.rotation];
-        this.character.rotation_angle = 1.5707963267948966;
-        this.scene.root.addChild( this.character );
-
         
-        this.camera_controller = CameraController.init([0, 40, 100], this.character.position);
+        this.camera_controller = CameraController.init([0, 30, 100], [0,-.01,0]);
         this.dialoge_controller = DialogeController.init(this.scene);
 
         //DialogeController.add_message("Tasdad", "Lmao", 'table_2', 0);
@@ -128,8 +123,6 @@ var CurrentScene = {
             CurrentScene.renderer.clear([0.1,0.1,0.1,1]);
             //render scene
             CurrentScene.renderer.render(CurrentScene.scene, CurrentScene.camera_controller.camera, null, 0b11 );
-    
-            var vertices = CurrentScene.walkarea.getVertices();
         }   
         
         context.onupdate = function(dt) {
@@ -137,7 +130,6 @@ var CurrentScene = {
             CurrentScene.scene.update(dt);
     
             var t = getTime();
-            var time_factor = 1;
 
             // Update the positions of all characters
             for(const user_id in CurrentScene.users_by_id) {
@@ -147,15 +139,23 @@ var CurrentScene = {
                 var user_direction = CurrentScene.users_by_id[user_id].direction;
 
                 if (Math.sqrt(user_direction[0]*user_direction[0] + user_direction[2]*user_direction[2]) <= 0.0) {
+                    // Back to ground level
+                    if (CurrentScene.users_by_id[user_id].position[1] > 0) {
+                        CurrentScene.users_by_id[user_id].position[1] = 0.0;
+                        //CurrentScene.users_by_id[user_id].translate([0, -CurrentScene.users_by_id[user_id].position[1], 0]);
+                    }
                     continue;
                 }
 
                 var facing_point = [];
                 vec3.add(facing_point, CurrentScene.users_by_id[user_id].position, user_direction);
 
-                CurrentScene.users_by_id[user_id].rotation_angle = Math.lerp(CurrentScene.users_by_id[user_id], get_rotation_angle(CurrentScene.character.position, facing_point), 0.25);
+                CurrentScene.users_by_id[user_id].rotation_angle = Math.lerp(CurrentScene.users_by_id[user_id], get_rotation_angle(CurrentScene.users_by_id[user_id].position, facing_point), 0.25);
 
                 CurrentScene.users_by_id[user_id].translate(CurrentScene.users_by_id[user_id].direction);
+                var nearest_pos = CurrentScene.walkarea.adjustPosition( CurrentScene.users_by_id[user_id].position );
+                CurrentScene.users_by_id[user_id].position = nearest_pos;
+                CurrentScene.users_by_id[user_id].translate([0, (0.0 + Math.sin((t - CurrentScene.users_by_id[user_id].start_mov_time)/70.0))/2.0, 0]);
             }
     
             // CONTROL OF THE CURRENT USER
@@ -235,10 +235,10 @@ var CurrentScene = {
     start_moving_user: function(user_id, start_pos, direction) {
         CurrentScene.users_by_id[user_id].direction = [... direction];
         CurrentScene.users_by_id[user_id].position = [... start_pos];
+        CurrentScene.users_by_id[user_id].start_mov_time = getTime();
     },
     end_moving_user: function(user_id, end_pos) {
         CurrentScene.users_by_id[user_id].direction = [0,0,0];
-        console.log(CurrentScene.users_by_id[user_id], user_id);
         CurrentScene.users_by_id[user_id].position = [... end_pos];
     },
     user_join_table: function(user_id, table_id, seat_id) {

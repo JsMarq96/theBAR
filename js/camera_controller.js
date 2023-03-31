@@ -6,6 +6,7 @@ var CameraController = {
         this.camera.perspective( 60, gl.canvas.width / gl.canvas.height, 0.1, 1000 );
         this.camera.lookAt( starting_pos, character_pos, [0,1,0] );
         this.perfect_pos = [...starting_pos];
+        vec3.add(this.perfect_pos, this.perfect_pos, [0, 10, 0]);
         this.character_position = [...character_pos];
         this.current_focus = [...character_pos];
         

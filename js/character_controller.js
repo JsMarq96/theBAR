@@ -3,6 +3,7 @@ var CharacterController = {
 
     init: function() {
         this.can_interact = true;
+        this.in_jukebox = false;
     },
 
     player_update: function () {
@@ -36,11 +37,13 @@ var CharacterController = {
             if (this.table_to_sit != null) {
                 ServerCommunication.try_to_sit_at_table(this.table_to_sit);
                 this.can_interact = false;
+            } else if (this.in_jukebox) {
+                OverlayMenusController.show_jukebox_menu();
             }
         }
 
         var is_character_movement_equal = true;
-        var is_moving = Math.sqrt(move_local[0] * move_local[0] + move_local[2] * move_local[2]) > 0.0;
+        var is_moving = Math.sqrt(move_local[0] * move_local[0] + move_local[2] * move_local[2]) > 0.001;
 
         // Check if you are in a interactability area
         this.table_to_sit = null;
@@ -52,22 +55,26 @@ var CharacterController = {
                                   start_table_3,
                                   table_size_area)) {
             this.table_to_sit = 'table_3';
+        } else {
+            this.in_jukebox = AABB_collision(CurrentScene.users_by_id[CurrentScene.current_user_id].position,
+                                             jukebox_area_origin,
+                                             jukebox_area_size);
         }
 
+        
+        
         if (this.table_to_sit != null) {
             InGameMenuController.show_sit_to_table(this.table_to_sit);
+        } else if (this.in_jukebox) {
+            InGameMenuController.show_jukebox_music();
         } else {
-            InGameMenuController.hide_sit_to_table();
+            InGameMenuController.hide_all_menus();
         }
 
-        for (var i = 0; i < 3; i++) {
-            is_character_movement_equal = CurrentScene.users_by_id[CurrentScene.current_user_id].direction[i] == move_local[i];
-            if (!is_character_movement_equal) {
-                break;
-            }
-        }
+       is_character_movement_equal = (Math.abs(CurrentScene.users_by_id[CurrentScene.current_user_id].direction[0] - move_local[0]) < 0.01) && (Math.abs(CurrentScene.users_by_id[CurrentScene.current_user_id].direction[2] - move_local[2]) < 0.01);
 
         if (!is_character_movement_equal) {
+            console.log("new update");
             if (is_moving) {
                 ServerCommunication.send_start_moving_character(CurrentScene.users_by_id[CurrentScene.current_user_id].position, move_local);
             } else {
@@ -79,9 +86,10 @@ var CharacterController = {
         if (is_moving) {
             CurrentScene.camera_controller.update_character(CurrentScene.users_by_id[CurrentScene.current_user_id].position);
         }
-        //console.log("pos", CurrentScene.users_by_id[CurrentScene.current_user_id].position);
+        console.log("pos", CurrentScene.users_by_id[CurrentScene.current_user_id].position);
     },
     seated_update: function () {
-        
+        //6, 0, -52 
+        // 48, 0, -41
     }
 };
