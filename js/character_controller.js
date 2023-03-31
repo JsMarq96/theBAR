@@ -74,7 +74,6 @@ var CharacterController = {
        is_character_movement_equal = (Math.abs(CurrentScene.users_by_id[CurrentScene.current_user_id].direction[0] - move_local[0]) < 0.01) && (Math.abs(CurrentScene.users_by_id[CurrentScene.current_user_id].direction[2] - move_local[2]) < 0.01);
 
         if (!is_character_movement_equal) {
-            console.log("new update");
             if (is_moving) {
                 ServerCommunication.send_start_moving_character(CurrentScene.users_by_id[CurrentScene.current_user_id].position, move_local);
             } else {
@@ -82,6 +81,7 @@ var CharacterController = {
             }
         }
 
+        console.log(CurrentScene.users_by_id[CurrentScene.current_user_id].position);
         // Follow the camera
         if (is_moving) {
             CurrentScene.camera_controller.update_character(CurrentScene.users_by_id[CurrentScene.current_user_id].position);

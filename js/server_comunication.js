@@ -1,15 +1,15 @@
 
 var ServerCommunication = {
   send_log_in: function (name, pass) {
-    var key = (name + '_' + pass);
+    var key = md5(name + '_' + pass);
     var login_request = {'type':'login', 'name': name, 'data': key, 'style':1};
     socket.send(JSON.stringify(login_request));
     console.log("Send login", login_request);
   },
   
-  send_register: function () {
-    var key = md5(name_input.value + '_' + pass_input.value);
-    var register_request = {'type':'register', 'data': key};
+  send_register: function (name, pass) {
+    var key = md5(name + '_' + pass);
+    var register_request = {'type':'register', 'name': name, 'data': key};
     socket.send(JSON.stringify(register_request));
     console.log("Send register");
   },
@@ -58,6 +58,7 @@ var ServerCommunication = {
         CurrentScene.current_user_id = msg_obj.id;
         
         document.getElementById("login_menu").remove();
+        document.getElementById("user_guide").remove();
 
         // Start the music playlist. synchronized to the other users
         MusicController.play_with_reference(new Date(msg_obj.starting_playlist_date), parseInt(msg_obj.starting_song));
@@ -67,6 +68,7 @@ var ServerCommunication = {
           for(const seat in msg_obj.room_state.tables[table].seats) {
             var user = msg_obj.room_state.tables[table].seats[seat];
             CurrentScene.add_seated_user(parseInt(user.id), 
+                                         user.name,
                                          user.style, 
                                          table, 
                                          seat);
@@ -77,13 +79,15 @@ var ServerCommunication = {
         for(const i in msg_obj.room_state.free_roaming_users) {
           const user = msg_obj.room_state.free_roaming_users[i];
           console.log(user);
-          CurrentScene.add_free_roaming_user(parseInt(user.id), 
+          CurrentScene.add_free_roaming_user(parseInt(user.id),
+                                             user.name,
                                              user.style, 
                                              user.position, 
                                              user.direction);
         }
 
-        CurrentScene.camera_controller.update_character(CurrentScene.users_by_id[CurrentScene.current_user_id].position);
+        CurrentScene.camera_controller.starting = true;
+        CurrentScene.camera_controller.set_character_position(CurrentScene.users_by_id[CurrentScene.current_user_id].position);
   
         var audio_player = new Audio("music/bell.wav");
         audio_player.addEventListener("loadeddata", () => {
@@ -102,6 +106,7 @@ var ServerCommunication = {
       } else if (msg_obj.type.localeCompare("new_character") == 0) {
         // TODO
         CurrentScene.add_free_roaming_user(parseInt(msg_obj.user.id), 
+                                           msg_obj.user.name,
                                            msg_obj.user.style, 
                                            msg_obj.user.position, 
                                            [0,0,0]);

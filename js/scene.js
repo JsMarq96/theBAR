@@ -34,6 +34,8 @@ var CurrentScene = {
 
         this.users_by_id = {};
 
+        this.user_name_by_id = {};
+
         this.current_user_id = 3;
 
         ServerCommunication.init();
@@ -41,6 +43,8 @@ var CurrentScene = {
         CharacterController.init();
 
         OverlayMenusController.init();
+
+        UserLabelsController.init();
 
         MusicController.init();
 
@@ -87,22 +91,16 @@ var CurrentScene = {
         this.walkarea = new WalkArea();
         this.walkarea.addRect([-5,0,-19],215,104);
         this.walkarea.addRect([-6,0,-47],81,35);
-        //this.walkarea.addRect([-50,0,-30],80,50);
-        //this.walkarea.addRect([-90,0,-10],80,20);
-        //this.walkarea.addRect([-110,0,-30],40,50); // 35, 0 ,8
 
         InGameMenuController.init(this.scene);
     
         //load a GLTF for the room
         var room = new RD.SceneNode({scaling:40,position:[0,-.01,0]});
-        room.loadGLTF("data/room4.glb");
+        room.loadGLTF("data/room.glb");
         this.scene.root.addChild( room );
         
-        this.camera_controller = CameraController.init([0, 30, 100], [0,-.01,0]);
+        this.camera_controller = CameraController.init([-29, 30, 12], [66, 0, -67]);
         this.dialoge_controller = DialogeController.init(this.scene);
-
-        //DialogeController.add_message("Tasdad", "Lmao", 'table_2', 0);
-        //DialogeController.add_message("T", "Lmaof esf effefefs sfsefsf", 'table_2', 0);
     
         OverlayMenusController.show_login_menu();
 
@@ -152,8 +150,8 @@ var CurrentScene = {
                 CurrentScene.users_by_id[user_id].rotation_angle = Math.lerp(CurrentScene.users_by_id[user_id], get_rotation_angle(CurrentScene.users_by_id[user_id].position, facing_point), 0.25);
 
                 CurrentScene.users_by_id[user_id].translate(CurrentScene.users_by_id[user_id].direction);
-                var nearest_pos = CurrentScene.walkarea.adjustPosition( CurrentScene.users_by_id[user_id].position );
-                CurrentScene.users_by_id[user_id].position = nearest_pos;
+                //var nearest_pos = CurrentScene.walkarea.adjustPosition( CurrentScene.users_by_id[user_id].position );
+                //CurrentScene.users_by_id[user_id].position = nearest_pos;
                 CurrentScene.users_by_id[user_id].translate([0, (0.0 + Math.sin((t - CurrentScene.users_by_id[user_id].start_mov_time)/70.0))/2.0, 0]);
             }
     
@@ -163,6 +161,8 @@ var CurrentScene = {
             CharacterController.player_update();
 
             CurrentScene.update_misc();
+
+            UserLabelsController.update();
 
             CurrentScene.camera_controller.update_camera();
         }
@@ -206,8 +206,9 @@ var CurrentScene = {
     },
 
     // WEB BASED EVENTS
-    add_free_roaming_user: function(user_id, style, position, direction) {
+    add_free_roaming_user: function(user_id, name, style, position, direction) {
         console.log(user_id);
+        this.user_name_by_id[user_id] = name;
         var new_character = new RD.SceneNode({scaling:5.0,position:[0,-.01,0]});
         new_character.loadGLTF("data/char_white.glb");
         new_character.inital_rotation = [... new_character.rotation];
@@ -218,8 +219,11 @@ var CurrentScene = {
         this.scene.root.addChild( new_character );
 
         CurrentScene.users_by_id[user_id] = new_character;
+
+        UserLabelsController.create_label_for_user(user_id, name);
     },
-    add_seated_user: function(user_id, style, table_id, seat_id) {
+    add_seated_user: function(user_id, name, style, table_id, seat_id) {
+        this.user_name_by_id[user_id] = name;
         var new_character = new RD.SceneNode({scaling:5.0,position:[0,-.01,0]});
         new_character.loadGLTF("data/char_white.glb");
         new_character.inital_rotation = [... new_character.rotation];
@@ -238,6 +242,7 @@ var CurrentScene = {
         this.scene.root.addChild( new_character );
 
         CurrentScene.users_by_id[user_id] = new_character;
+        UserLabelsController.create_label_for_user(user_id, name);
     },
     start_moving_user: function(user_id, start_pos, direction) {
         CurrentScene.users_by_id[user_id].direction = [... direction];

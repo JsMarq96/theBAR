@@ -4,40 +4,47 @@
 }
 
 #login_menu {
-    width: 500px;
-    height: 200px;
+    width: 623px;
+    height: 30px;
     position: fixed;
-    left: 10px;
-    top: 10px;
+    left: 30px;
+    top: 30px;
     background-color: white;
+    display:flex;justify-content:center;align-items:center;
+    padding: 5px;
+    border-radius: 10px;
 }
 
 #username_input {
-    position: relative;
-    left: 5px;
-    top: 5px;
+    width: 450px;
+    border-radius: 10px;
 }
 
 #passwd_input {
-    position: relative;
-    left: 5px;
-    top: 25px;
+    margin-left: 10px;
+    width: 450px;
+    border-radius: 10px;
 }
 
 #login_button {
-    position: relative;
-    left: 5px;
-    top: 65px;
+    margin-left: 10px;
+    width: 250px;
 }
 
 #register_button {
-    position: relative;
-    left: 5px;
-    top: 65px;
+    width: 250px;
 }
 
-input {
-    width: 450px;
+#user_guide {
+    top: 500px;
+    left: 700px;
+    position:absolute;
+    background-color: white;
+    padding: 20px;
+    padding-left: 40px;
+    padding-right: 30px;
+    border-radius: 10px;
+
 }
 
 #message_box {

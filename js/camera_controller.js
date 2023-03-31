@@ -14,8 +14,13 @@ var CameraController = {
         this.look_from = [0,0,0];
 
         this.follow_character = true;
+        this.starting = false;
 
         return this;
+    },
+    set_character_position: function(position) {
+        vec3.add(this.perfect_pos, position, [0, 40, 80]);
+        vec3.add(this.character_position, position, [0, 5, 0]);
     },
     update_character: function(new_character_pos) {
         // Get teh diference in position
@@ -27,13 +32,25 @@ var CameraController = {
     },
     update_camera: function() {
         var new_cam_pos = [0,0,0];
-        if (this.follow_character) {
-            vec3.lerp(new_cam_pos, this.camera.position, this.perfect_pos, 0.15);
-            vec3.lerp(this.current_focus, this.current_focus, this.character_position, 0.15);
+        if(!this.starting) {
+            if (this.follow_character) {
+                vec3.lerp(new_cam_pos, this.camera.position, this.perfect_pos, 0.15);
+                vec3.lerp(this.current_focus, this.current_focus, this.character_position, 0.15);
+            } else {
+                vec3.lerp(new_cam_pos, this.camera.position, this.look_from, 0.15);
+                vec3.lerp(this.current_focus, this.current_focus, this.look_point, 0.15);
+            }
         } else {
-            vec3.lerp(new_cam_pos, this.camera.position, this.look_from, 0.15);
-            vec3.lerp(this.current_focus, this.current_focus, this.look_point, 0.15);
+            vec3.lerp(new_cam_pos, this.camera.position, [0, 40, 80], 0.25);
+            vec3.lerp(this.current_focus, this.current_focus, [0,-.01,0], 0.25);
+
+            var diff = [];
+            vec3.sub(diff, this.camera.position, [0, 40, 80]);
+            if (Math.abs(vec3.length(diff)) < 0.1) {
+                this.starting = false;
+            }
         }
+        
 
         this.camera.lookAt( new_cam_pos, this.current_focus, [0,1,0] );
     },

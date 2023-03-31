@@ -8,34 +8,44 @@ var OverlayMenusController = {
         var login_container = document.createElement('div');
         login_container.id = "login_menu";
 
-        var name_input = document.createElement('input');
-        name_input.id = "username_input";
-        name_input.type = 'text';
+        this.name_input = document.createElement('input');
+        this.name_input.id = "username_input";
+        this.name_input.type = 'text';
+        this.name_input.placeholder="Username";
 
-        var passw_input = document.createElement('input');
-        passw_input.id = "passwd_input";
-        passw_input.type = 'text';
+        this.passw_input = document.createElement('input');
+        this.passw_input.id = "passwd_input";
+        this.passw_input.type = 'text';
+        this.passw_input.placeholder="Password";
 
         var button = document.createElement('button');
         button.id = "login_button";
-        button.innerHTML = "Login"
+        button.innerHTML = "  Login"
         button.onclick = function(e) {
-            ServerCommunication.send_log_in(name_input.value, passw_input.value);
+            ServerCommunication.send_log_in(OverlayMenusController.name_input.value, OverlayMenusController.passw_input.value);
         };
 
         var button_reg = document.createElement('button');
         button_reg.id = "register_button";
-        button_reg.innerHTML = "Register"
+        button_reg.innerHTML = "  Register"
         button_reg.onclick = function(e) {
-            ServerCommunication.send_log_in(name_input.value, passw_input.value);
+            console.log("Reg");
+            ServerCommunication.send_register(OverlayMenusController.name_input.value, OverlayMenusController.passw_input.value);
         };
 
-        login_container.appendChild(name_input);
-        login_container.appendChild(passw_input);
+        login_container.appendChild(this.name_input);
+        login_container.appendChild(this.passw_input);
         login_container.appendChild(button);
         login_container.appendChild(button_reg);
 
         document.body.appendChild(login_container);
+
+
+        var user_guide = document.createElement('div');
+        user_guide.id = "user_guide";
+        user_guide.innerHTML = "<ul><li> Move with WASD or the arrow keys </li> <li>Press E to interact when prompted </li> <li>Press Escape to exit chat mode</li></ul>";
+        document.body.appendChild(user_guide);
+        
     },
 
     show_send_message_menu: function() {
