@@ -7,35 +7,33 @@ var OverlayMenusController = {
     show_login_menu: function() {
         var login_container = document.createElement('div');
         login_container.id = "login_menu";
-        login_container.style.position = 'fixed';
-        login_container.style.left = '2px';
-        login_container.style.top = '2px';
-        login_container.style.backgroundColor = "white";
 
         var name_input = document.createElement('input');
+        name_input.id = "username_input";
         name_input.type = 'text';
-        name_input.style.position = 'fixed';
-        name_input.style.left = '5px';
-        name_input.style.top = '5px';
 
         var passw_input = document.createElement('input');
+        passw_input.id = "passwd_input";
         passw_input.type = 'text';
-        passw_input.style.position = 'fixed';
-        passw_input.style.left = '5px';
-        passw_input.style.top = '35px';
 
         var button = document.createElement('button');
+        button.id = "login_button";
         button.innerHTML = "Login"
-        button.style.position = 'fixed';
-        button.style.left = '5px';
-        button.style.top = '65px';
         button.onclick = function(e) {
+            ServerCommunication.send_log_in(name_input.value, passw_input.value);
+        };
+
+        var button_reg = document.createElement('button');
+        button_reg.id = "register_button";
+        button_reg.innerHTML = "Register"
+        button_reg.onclick = function(e) {
             ServerCommunication.send_log_in(name_input.value, passw_input.value);
         };
 
         login_container.appendChild(name_input);
         login_container.appendChild(passw_input);
         login_container.appendChild(button);
+        login_container.appendChild(button_reg);
 
         document.body.appendChild(login_container);
     },

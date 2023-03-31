@@ -1,5 +1,6 @@
 \shaders
 skybox skybox.vs skybox.fs
+textured_plain phong.vs textured.fs
 phong_texture phong.vs phong_texture.fs
 quad_sprites quad_sprites.vs quad_sprites.fs
 point_sprites point_sprites.vs point_sprites.fs
@@ -68,6 +69,25 @@ void main() {
 	color *= 0.8 + 0.2 * max(0.0, dot(N,L));
 	gl_FragColor = color;
 }
+
+\textured.fs
+
+precision highp float;
+varying vec3 v_pos;
+varying vec3 v_wPos;
+varying vec3 v_wNormal;
+varying vec2 v_coord;
+
+uniform sampler2D u_color_texture;
+uniform mat3 u_texture_matrix;
+
+void main() {
+	vec3 N = normalize(v_wNormal);
+	vec2 uv = (u_texture_matrix * vec3(v_coord,1.0)).xy;
+	vec4 color = texture2D( u_color_texture, uv );
+	gl_FragColor = color;
+}
+
 
 \fx.fs
 

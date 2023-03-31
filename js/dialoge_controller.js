@@ -95,6 +95,7 @@ var DialogeController = {
 
         var panel = new RD.SceneNode({mesh:"plane",scale:[text.width/5.0,text.height/5.0,1],flags:{two_sided:true}});
         panel.texture = texture_id; //assign canvas texture to node
+        console.log(seat_id);
         panel.position = [... this.message_pos[table_id][seat_id]];
         panel.text_id = texture_id;
         this.scene.root.addChild(panel);

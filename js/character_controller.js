@@ -86,7 +86,6 @@ var CharacterController = {
         if (is_moving) {
             CurrentScene.camera_controller.update_character(CurrentScene.users_by_id[CurrentScene.current_user_id].position);
         }
-        console.log("pos", CurrentScene.users_by_id[CurrentScene.current_user_id].position);
     },
     seated_update: function () {
         //6, 0, -52 

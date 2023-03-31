@@ -48,29 +48,26 @@ var CurrentScene = {
 
         // Seated positions
         this.seated_positions = {
-            'table_1': { 0 : [77, 20, -83], 
-                         1 : [127, 20, -84], 
-                         2:  [76, 20, -57], 
-                         3 : [127, 4, -57], 
-                        },
-            'table_2': { 0 : [77, 15, -83], 
-                         1 : [125, 15, -83], 
-                         2:  [77, 15, -43], 
-                         3 : [125, 15, -41],  
+            'table_2': { 0 : [77, 10, -83], 
+                         1 : [125, 10, -83], 
+                         2:  [77, 10, -43], 
+                         3 : [125, 10, -41],  
                          },
-            'table_3': { 0 : [155, 20, -85], 1 : [200, 20, -85], 2: [153, 20, -46], 3 : [200, 20, -46] },
+            'table_3': { 0 : [155, 10, -85], 1 : [200, 10, -85], 2: [153, 10, -46], 3 : [200, 10, -46] },
         };
 
         this.seated_orientations = {
-            'table_1': { 0 : 0.0, 1 : 0.0, 2: 0.0, 3 : 0.0 },
-            'table_2': { 0 : 0.0, 1 : 0.0, 2: 0.0, 3 : 0.0 },
-            'table_3': { 0 : 0.0, 1 : 0.0, 2: 0.0, 3 : 0.0 },
+            0 : [-1, 0, 0], 
+            1 : [1, 0, 0], 
+            2:  [-1, 0, 0], 
+            3 : [1, 0, 0], 
+               
         };
         
         this.table_camera = {
             'table_1':{ pos: [], look_at: [] },
             'table_2':{ pos: [101, 30, 21], look_at: [101, 40, -78] },
-            'table_3':{ pos: [176, 6, 21], lool_at: [176, 7, -84] }
+            'table_3':{ pos: [176, 30, 21], look_at: [176, 40, -84] }
         };
 
         //create the rendering context
@@ -150,6 +147,8 @@ var CurrentScene = {
                 var facing_point = [];
                 vec3.add(facing_point, CurrentScene.users_by_id[user_id].position, user_direction);
 
+                CurrentScene.users_by_id[user_id].orientTo(facing_point,true,[0,1,0],false,true);
+
                 CurrentScene.users_by_id[user_id].rotation_angle = Math.lerp(CurrentScene.users_by_id[user_id], get_rotation_angle(CurrentScene.users_by_id[user_id].position, facing_point), 0.25);
 
                 CurrentScene.users_by_id[user_id].translate(CurrentScene.users_by_id[user_id].direction);
@@ -191,6 +190,7 @@ var CurrentScene = {
         this.mode = SEATED;
         this.curr_table = table_id;
         this.curr_seat = seat_id;
+        console.log(table_id, seat_id, this.table_camera[table_id]);
         CurrentScene.camera_controller.look_at_point(this.table_camera[table_id].look_at, this.table_camera[table_id].pos);
     },
 
@@ -209,7 +209,7 @@ var CurrentScene = {
     add_free_roaming_user: function(user_id, style, position, direction) {
         console.log(user_id);
         var new_character = new RD.SceneNode({scaling:5.0,position:[0,-.01,0]});
-        new_character.loadGLTF("data/box.glb");
+        new_character.loadGLTF("data/char_white.glb");
         new_character.inital_rotation = [... new_character.rotation];
         new_character.rotation_angle = 1.5707963267948966;
         new_character.position = [... position];
@@ -221,13 +221,20 @@ var CurrentScene = {
     },
     add_seated_user: function(user_id, style, table_id, seat_id) {
         var new_character = new RD.SceneNode({scaling:5.0,position:[0,-.01,0]});
-        new_character.loadGLTF("data/box.glb");
+        new_character.loadGLTF("data/char_white.glb");
         new_character.inital_rotation = [... new_character.rotation];
         new_character.rotation_angle = 1.5707963267948966;
         new_character.position = [... this.seated_positions[table_id][seat_id]];
         new_character.direction = [0,0,0];
         new_character.mode = SEATED;
-        new_character.rotation_angle = this.seated_orientations[table_id][seat_id];
+        new_character.table = table_id;
+        new_character.seat = seat_id;
+
+        var facing = [];
+        vec3.add(facing, new_character.position, this.seated_orientations[seat_id]);
+        new_character.orientTo(facing,true,[0,1,0],false,true);
+
+        //new_character.rotation_angle = this.seated_orientations[table_id][seat_id];
         this.scene.root.addChild( new_character );
 
         CurrentScene.users_by_id[user_id] = new_character;
@@ -243,7 +250,9 @@ var CurrentScene = {
     },
     user_join_table: function(user_id, table_id, seat_id) {
         CurrentScene.users_by_id[user_id].position = [... this.seated_positions[table_id][seat_id]];
-        CurrentScene.users_by_id[user_id].rotation_angle = this.seated_orientations[table_id][seat_id];
+        var facing = [];
+        vec3.add(facing, CurrentScene.users_by_id[user_id].position, this.seated_orientations[seat_id]);
+        CurrentScene.users_by_id[user_id].orientTo(facing,true,[0,1,0],false,true);
         CurrentScene.users_by_id[user_id].mode = SEATED;
         CurrentScene.users_by_id[user_id].table = table_id;
         CurrentScene.users_by_id[user_id].seat = seat_id;
@@ -256,19 +265,30 @@ var CurrentScene = {
         CurrentScene.users_by_id[user_id].seat = null;
     },
     seat_user: function(user_id, table_id, seat_id) {
-        CurrentScene.users_by_id[user_id].rotation_angle = 1.5707963267948966;
         CurrentScene.users_by_id[user_id].position = [... this.seated_positions[table_id][seat_id]];
+        var facing = [];
+        vec3.add(facing, CurrentScene.users_by_id[user_id].position, this.seated_orientations[seat_id]);
+        CurrentScene.users_by_id[user_id].orientTo(facing,true,[0,1,0],false,true);
+
         CurrentScene.users_by_id[user_id].direction = [0,0,0];
         CurrentScene.users_by_id[user_id].mode = SEATED;
         CurrentScene.users_by_id[user_id].table = table_id;
         CurrentScene.users_by_id[user_id].seat = seat_id;
     },
     free_roam_user: function(user_id, position) {
-        CurrentScene.users_by_id[user_id].rotation_angle = 1.5707963267948966;
         CurrentScene.users_by_id[user_id].position = [... position];
         CurrentScene.users_by_id[user_id].direction = [0,0,0];
         CurrentScene.users_by_id[user_id].mode = FREE_ROAM;
         CurrentScene.users_by_id[user_id].table = null;
         CurrentScene.users_by_id[user_id].seat = null;
+
+        var facing = [];
+        vec3.add(facing, CurrentScene.users_by_id[user_id].position, [0,0,1]);
+        CurrentScene.users_by_id[user_id].orientTo(facing,true,[0,1,0],false,true);
+    },
+
+    remove_user: function(user_id) {
+        this.scene.root.removeChild( CurrentScene.users_by_id[user_id] );
+        delete CurrentScene.users_by_id[user_id];
     }
 };

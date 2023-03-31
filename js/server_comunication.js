@@ -85,6 +85,12 @@ var ServerCommunication = {
 
         CurrentScene.camera_controller.update_character(CurrentScene.users_by_id[CurrentScene.current_user_id].position);
   
+        var audio_player = new Audio("music/bell.wav");
+        audio_player.addEventListener("loadeddata", () => {
+          audio_player.volume = 0.25;
+          audio_player.loop = false;
+          audio_player.play();
+      });
       } else if (msg_obj.type.localeCompare("start_moving") == 0) {
         // TODO
         CurrentScene.start_moving_user(parseInt(msg_obj.user_id), 
@@ -99,8 +105,15 @@ var ServerCommunication = {
                                            msg_obj.user.style, 
                                            msg_obj.user.position, 
                                            [0,0,0]);
-      } else if (msg_obj.type.localeCompare("user_disconnect") == 0) {
+                                           var audio_player = new Audio("music/bell.wav");
+                                           audio_player.addEventListener("loadeddata", () => {
+                                             audio_player.volume = 0.25;
+                                             audio_player.loop = false;
+                                             audio_player.play();
+                                         });
+      } else if (msg_obj.type.localeCompare("user_disconected") == 0) {
         // TODO
+        CurrentScene.remove_user(parseInt(msg_obj.user_id));
       } else if (msg_obj.type.localeCompare("login_error") == 0) {
         // TODO
     
@@ -140,7 +153,7 @@ var ServerCommunication = {
           DialogeController.add_message(msg_obj.from, 
                                         msg_obj.message, 
                                         user.table, 
-                                        user.seat);
+                                        parseInt(user.seat));
         }
         console.log("New message!");
       } else if (msg_obj.type.localeCompare("new_song") == 0) {

@@ -6,7 +6,34 @@
 #login_menu {
     width: 500px;
     height: 200px;
+    position: fixed;
+    left: 10px;
+    top: 10px;
     background-color: white;
+}
+
+#username_input {
+    position: relative;
+    left: 5px;
+    top: 5px;
+}
+
+#passwd_input {
+    position: relative;
+    left: 5px;
+    top: 25px;
+}
+
+#login_button {
+    position: relative;
+    left: 5px;
+    top: 65px;
+}
+
+#register_button {
+    position: relative;
+    left: 5px;
+    top: 65px;
 }
 
 input {
